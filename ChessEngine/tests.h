@@ -34,6 +34,14 @@ TEST( SetupChessBoardInInitialPosition )
 	CHECK(board.get(6, 1) == WHITE_PAWN);
 	CHECK(board.get(7, 1) == WHITE_PAWN);
 
+	for(int i = 0; i < 8; i++)
+	{
+		for(int j = 2; j < 6; j++)
+		{
+			CHECK(board.get(i, j) == NO_PIECE);
+		}
+	}
+
 	CHECK(board.get(0, 6) == BLACK_PAWN);
 	CHECK(board.get(1, 6) == BLACK_PAWN);
 	CHECK(board.get(2, 6) == BLACK_PAWN);
@@ -51,6 +59,15 @@ TEST( SetupChessBoardInInitialPosition )
 	CHECK(board.get(5, 7) == BLACK_BISHOP);
 	CHECK(board.get(6, 7) == BLACK_KNIGHT);
 	CHECK(board.get(7, 7) == BLACK_ROOK);
+}
 
+TEST ( PerformOneMoveFromTheInitialPosition )
+{
+	ChessBoard board;
+	board.initializeGame();
+	board.performMove(3, 1, 3, 3);
+	CHECK(board.get(3, 1) == NO_PIECE);
+	CHECK(board.get(3, 3) == WHITE_PAWN);
+	CHECK(board.sideToMove() == BLACK);
 }
 
