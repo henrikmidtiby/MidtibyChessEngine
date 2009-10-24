@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "chessboard.h"
+#include <assert.h>
 
 ChessBoard::ChessBoard()
 {
@@ -82,4 +83,149 @@ void ChessBoard::performMove(int column0, int row0, int column1, int row1)
 	{
 		toMove = WHITE;
 	}
+}
+
+bool ChessBoard::isWhiteKingUnderAttack()
+{
+	std::pair <int, int> posOfWhiteKing = locateWhiteKing();
+	int column = posOfWhiteKing.first;
+	int row = posOfWhiteKing.second;
+
+	Pieces nearest;
+	// Above
+	nearest = firstPieceInDirection(column, row, 0, 1);
+	if(nearest == BLACK_ROOK)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Below
+	nearest = firstPieceInDirection(column, row, 0, -1);
+	if(nearest == BLACK_ROOK)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Left
+	nearest = firstPieceInDirection(column, row, -1, 0);
+	if(nearest == BLACK_ROOK)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Right
+	nearest = firstPieceInDirection(column, row, 1, 0);
+	if(nearest == BLACK_ROOK)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Above right
+	nearest = firstPieceInDirection(column, row, 1, 1);
+	if(nearest == BLACK_BISHOP)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Above left
+	nearest = firstPieceInDirection(column, row, 1, -1);
+	if(nearest == BLACK_BISHOP)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Below right
+	nearest = firstPieceInDirection(column, row, -1, 1);
+	if(nearest == BLACK_BISHOP)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+	// Below left
+	nearest = firstPieceInDirection(column, row, -1, -1);
+	if(nearest == BLACK_BISHOP)
+		return true;
+	if(nearest == BLACK_QUEEN)
+		return true;
+
+	return false;
+}
+
+bool ChessBoard::isBlackKingUnderAttack()
+{
+	return false;
+}
+
+void ChessBoard::clearBoard()
+{
+	for(int i = 0; i < 8; i++)
+		for(int j = 0; j < 8; j++)
+			board[i][j] = NO_PIECE;
+	
+	toMove = WHITE;
+}
+
+void ChessBoard::placePiece(int column, int row, Pieces piece)
+{
+	board[column][row] = piece;
+}
+
+void ChessBoard::setSideToMove(Side side)
+{
+	toMove = side;
+}
+
+Pieces ChessBoard::firstPieceInDirection(int column, int row, int dirColumn, int dirRow)
+{
+	for(int i = 1; i < 8; i++)
+	{
+		int testColumn = column + i * dirColumn;
+		int testRow = row + i * dirRow;
+
+		if(testColumn < 0 || testColumn > 7)
+			break;
+
+		if(testRow < 0 || testRow > 7)
+			break;
+
+		if(board[testColumn][testRow] != NO_PIECE)
+			return board[testColumn][testRow];
+	}
+
+	return NO_PIECE;
+}
+
+std::pair <int, int> ChessBoard::locateWhiteKing()
+{
+	// Locate position of the white king
+	int column = -1;
+	int row = -1;
+	for(int i = 0; i < 8; i++)
+	{
+		for(int j = 0; j < 8; j++)
+		{
+			if(board[i][j] == WHITE_KING)
+			{
+				column = i;
+				row = j;
+			}
+		}
+	}
+
+	assert(column != -1);
+	return std::make_pair(column, row);
+}
+
+std::pair <int, int> ChessBoard::locateBlackKing()
+{
+	// Locate position of the white king
+	int column = -1;
+	int row = -1;
+	for(int i = 0; i < 8; i++)
+	{
+		for(int j = 0; j < 8; j++)
+		{
+			if(board[i][j] == BLACK_KING)
+			{
+				column = i;
+				row = j;
+			}
+		}
+	}
+
+	assert(column != -1);
+	return std::make_pair(column, row);
 }
