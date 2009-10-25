@@ -65,12 +65,12 @@ TEST ( PerformOneMoveFromTheInitialPosition )
 {
 	ChessBoard board;
 	board.initializeGame();
-	board.performMove(3, 1, 3, 3);
+	board.performMove(Position(3, 1), Position(3, 3));
 	CHECK(board.get(3, 1) == NO_PIECE);
 	CHECK(board.get(3, 3) == WHITE_PAWN);
 	CHECK(board.sideToMove() == BLACK);
 
-	board.performMove(3, 6, 3, 4);
+	board.performMove(Position(3, 6), Position(3, 4));
 	CHECK(board.get(3, 6) == NO_PIECE);
 	CHECK(board.get(3, 4) == BLACK_PAWN);
 	CHECK(board.sideToMove() == WHITE);
@@ -100,7 +100,7 @@ TEST ( PlacePiece )
 {
 	ChessBoard board;
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(Position(3, 3), WHITE_KING);
 	CHECK(board.get(3, 3) == WHITE_KING);
 }
 
@@ -119,34 +119,34 @@ TEST ( IsWhiteKingAttackedByRook )
 	board.clearBoard();
 
 	// Place a rook above the king
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(3, 6, BLACK_ROOK);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(3, 6), BLACK_ROOK);
 	CHECK(board.isWhiteKingUnderAttack());
 	
 	// Put a piece in between
-	board.placePiece(3, 5, BLACK_PAWN);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
 	CHECK(!board.isWhiteKingUnderAttack());
 
 	// Place a rook below the king
 	board.clearBoard();
-	board.placePiece(3, 6, WHITE_KING);
-	board.placePiece(3, 3, BLACK_ROOK);
+	board.placePiece(Position(3, 6), WHITE_KING);
+	board.placePiece(Position(3, 3), BLACK_ROOK);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	// Put a piece in between
-	board.placePiece(3, 5, BLACK_PAWN);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
 	CHECK(!board.isWhiteKingUnderAttack());
 
 	// Place a rook to the right of the king
 	board.clearBoard();
-	board.placePiece(1, 3, WHITE_KING);
-	board.placePiece(3, 3, BLACK_ROOK);
+	board.placePiece(Position(1, 3), WHITE_KING);
+	board.placePiece(Position(3, 3), BLACK_ROOK);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	// Place a rook to the left of the king
 	board.clearBoard();
-	board.placePiece(6, 3, WHITE_KING);
-	board.placePiece(3, 3, BLACK_ROOK);
+	board.placePiece(Position(6, 3), WHITE_KING);
+	board.placePiece(Position(3, 3), BLACK_ROOK);
 	CHECK(board.isWhiteKingUnderAttack());
 }
 
@@ -156,34 +156,34 @@ TEST ( IsBlackKingAttackedByRook )
 	board.clearBoard();
 
 	// Place a rook above the king
-	board.placePiece(3, 3, BLACK_KING);
-	board.placePiece(3, 6, WHITE_ROOK);
+	board.placePiece(Position(3, 3), BLACK_KING);
+	board.placePiece(Position(3, 6), WHITE_ROOK);
 	CHECK(board.isBlackKingUnderAttack());
 
 	// Put a piece in between
-	board.placePiece(3, 5, BLACK_PAWN);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
 	CHECK(!board.isBlackKingUnderAttack());
 
 	// Place a rook below the king
 	board.clearBoard();
-	board.placePiece(3, 6, BLACK_KING);
-	board.placePiece(3, 3, WHITE_ROOK);
+	board.placePiece(Position(3, 6), BLACK_KING);
+	board.placePiece(Position(3, 3), WHITE_ROOK);
 	CHECK(board.isBlackKingUnderAttack());
 
 	// Put a piece in between
-	board.placePiece(3, 5, BLACK_PAWN);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
 	CHECK(!board.isBlackKingUnderAttack());
 
 	// Place a rook to the right of the king
 	board.clearBoard();
-	board.placePiece(1, 3, BLACK_KING);
-	board.placePiece(3, 3, WHITE_ROOK);
+	board.placePiece(Position(1, 3), BLACK_KING);
+	board.placePiece(Position(3, 3), WHITE_ROOK);
 	CHECK(board.isBlackKingUnderAttack());
 
 	// Place a rook to the left of the king
 	board.clearBoard();
-	board.placePiece(6, 3, BLACK_KING);
-	board.placePiece(3, 3, WHITE_ROOK);
+	board.placePiece(Position(6, 3), BLACK_KING);
+	board.placePiece(Position(3, 3), WHITE_ROOK);
 	CHECK(board.isBlackKingUnderAttack());
 }
 
@@ -192,14 +192,14 @@ TEST ( FirstEncounteredPieceFromCurrentPosition )
 {
 	ChessBoard board;
 	board.clearBoard();
-	board.placePiece(3, 6, BLACK_ROOK);
-	CHECK(board.firstPieceInDirection(3, 3, 1, 0) == NO_PIECE);
-	CHECK(board.firstPieceInDirection(3, 3, 0, 1) == BLACK_ROOK);
+	board.placePiece(Position(3, 6), BLACK_ROOK);
+	CHECK(board.firstPieceInDirection(Position(3, 3), 1, 0) == NO_PIECE);
+	CHECK(board.firstPieceInDirection(Position(3, 3), 0, 1) == BLACK_ROOK);
 
 	board.clearBoard();
-	board.placePiece(7, 7, BLACK_QUEEN);
-	CHECK(board.firstPieceInDirection(0, 0, 1, 1) == BLACK_QUEEN);
-	CHECK(board.firstPieceInDirection(3, 3, 0, 1) == NO_PIECE);
+	board.placePiece(Position(7, 7), BLACK_QUEEN);
+	CHECK(board.firstPieceInDirection(Position(0, 0), 1, 1) == BLACK_QUEEN);
+	CHECK(board.firstPieceInDirection(Position(3, 3), 0, 1) == NO_PIECE);
 }
 
 TEST ( LocateKing )
@@ -216,25 +216,25 @@ TEST ( IsKingAttackedByBishop )
 	ChessBoard board;
 	board.clearBoard();
 
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(3, 6, BLACK_BISHOP);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(3, 6), BLACK_BISHOP);
 	CHECK(!board.isWhiteKingUnderAttack());
-	board.placePiece(6, 6, BLACK_BISHOP);
+	board.placePiece(Position(6, 6), BLACK_BISHOP);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(6, 0, BLACK_BISHOP);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(6, 0), BLACK_BISHOP);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(0, 0, BLACK_BISHOP);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(0, 0), BLACK_BISHOP);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(0, 6, BLACK_BISHOP);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(0, 6), BLACK_BISHOP);
 	CHECK(board.isWhiteKingUnderAttack());
 }
 
@@ -243,57 +243,57 @@ TEST ( IsKingAttackedByQueen )
 	ChessBoard board;
 	board.clearBoard();
 
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(6, 6, BLACK_QUEEN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(6, 6), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(6, 0, BLACK_QUEEN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(6, 0), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(0, 0, BLACK_QUEEN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(0, 0), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(0, 6, BLACK_QUEEN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(0, 6), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 
 	board.clearBoard();
 
 	// Place a rook above the king
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(3, 6, BLACK_QUEEN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(3, 6), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	// Put a piece in between
-	board.placePiece(3, 5, BLACK_PAWN);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
 	CHECK(!board.isWhiteKingUnderAttack());
 
 	// Place a rook below the king
 	board.clearBoard();
-	board.placePiece(3, 6, WHITE_KING);
-	board.placePiece(3, 3, BLACK_QUEEN);
+	board.placePiece(Position(3, 6), WHITE_KING);
+	board.placePiece(Position(3, 3), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	// Put a piece in between
-	board.placePiece(3, 5, BLACK_PAWN);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
 	CHECK(!board.isWhiteKingUnderAttack());
 
 	// Place a rook to the right of the king
 	board.clearBoard();
-	board.placePiece(1, 3, WHITE_KING);
-	board.placePiece(3, 3, BLACK_QUEEN);
+	board.placePiece(Position(1, 3), WHITE_KING);
+	board.placePiece(Position(3, 3), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	// Place a rook to the left of the king
 	board.clearBoard();
-	board.placePiece(6, 3, WHITE_KING);
-	board.placePiece(3, 3, BLACK_QUEEN);
+	board.placePiece(Position(6, 3), WHITE_KING);
+	board.placePiece(Position(3, 3), BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
 }
 
@@ -302,45 +302,45 @@ TEST ( IsKingAttackedByKnight )
 	ChessBoard board;
 	board.clearBoard();
 
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(6, 6, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(6, 6), BLACK_KNIGHT);
 	CHECK(!board.isWhiteKingUnderAttack());
-	board.placePiece(4, 5, BLACK_KNIGHT);
+	board.placePiece(Position(4, 5), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(2, 5, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(2, 5), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(1, 4, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(1, 4), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(1, 2, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(1, 2), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(2, 1, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(2, 1), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(4, 1, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(4, 1), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(5, 2, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(5, 2), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(5, 4, BLACK_KNIGHT);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(5, 4), BLACK_KNIGHT);
 	CHECK(board.isWhiteKingUnderAttack());
 
 }
@@ -362,13 +362,13 @@ TEST ( IsKingAttackedByPawn )
 	ChessBoard board;
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(4, 4, BLACK_PAWN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(4, 4), BLACK_PAWN);
 	CHECK(board.isWhiteKingUnderAttack());
 
 	board.clearBoard();
-	board.placePiece(3, 3, WHITE_KING);
-	board.placePiece(2, 4, BLACK_PAWN);
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(2, 4), BLACK_PAWN);
 	CHECK(board.isWhiteKingUnderAttack());
 }
 
@@ -415,5 +415,157 @@ TEST ( IsKingAttackedByKing )
 	board.placePiece(Position(3, 3), WHITE_KING);
 	board.placePiece(Position(4, 4), BLACK_KING);
 	CHECK(board.isWhiteKingUnderAttack());
+}
+
+TEST ( IsBlackPiece )
+{
+	ChessBoard board;
+	CHECK(!board.isBlackPiece(WHITE_PAWN));
+	CHECK(board.isBlackPiece(BLACK_PAWN));
+	CHECK(board.isBlackPiece(BLACK_ROOK));
+	CHECK(board.isBlackPiece(BLACK_KNIGHT));
+	CHECK(board.isBlackPiece(BLACK_BISHOP));
+	CHECK(board.isBlackPiece(BLACK_QUEEN));
+	CHECK(board.isBlackPiece(BLACK_KING));
+}
+
+TEST ( IsWhitePiece )
+{
+	ChessBoard board;
+	CHECK(board.isWhitePiece(WHITE_PAWN));
+	CHECK(board.isWhitePiece(WHITE_ROOK));
+	CHECK(board.isWhitePiece(WHITE_KNIGHT));
+	CHECK(board.isWhitePiece(WHITE_BISHOP));
+	CHECK(board.isWhitePiece(WHITE_QUEEN));
+	CHECK(board.isWhitePiece(WHITE_KING));
+}
+
+TEST ( WhitePawnMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	// Single step forward
+	board.clearBoard();
+	board.placePiece(Position(3, 2), WHITE_PAWN);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 1);
+
+	// Double step forward
+	board.clearBoard();
+	board.placePiece(Position(3, 1), WHITE_PAWN);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	// Strike left 
+	board.clearBoard();
+	board.placePiece(Position(3, 2), WHITE_PAWN);
+	board.placePiece(Position(2, 3), BLACK_KING);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	// Strike right 
+	board.clearBoard();
+	board.placePiece(Position(3, 2), WHITE_PAWN);
+	board.placePiece(Position(4, 3), BLACK_KING);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
 
 }
+
+TEST ( IsWhiteOrEmpty )
+{
+	ChessBoard board;
+	CHECK(board.isWhiteOrEmpty(WHITE_PAWN));
+	CHECK(board.isWhiteOrEmpty(NO_PIECE));
+	CHECK(!board.isWhiteOrEmpty(BLACK_PAWN));
+}
+
+TEST ( IsBlackOrEmpty )
+{
+	ChessBoard board;
+	CHECK(board.isBlackOrEmpty(BLACK_PAWN));
+	CHECK(board.isBlackOrEmpty(NO_PIECE));
+	CHECK(!board.isBlackOrEmpty(WHITE_PAWN));
+}
+
+TEST ( WhiteRookMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_ROOK);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 14);
+
+	board.placePiece(Position(1, 0), BLACK_BISHOP);
+	board.placePiece(Position(0, 1), BLACK_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_ROOK);
+	board.placePiece(Position(0, 1), WHITE_ROOK);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 20);
+}
+
+TEST ( IsOutsideBoard )
+{
+	ChessBoard board;
+	CHECK(board.isOutsideBoard(Position(-1, 0)));
+}
+
+TEST ( WhiteBishopMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+
+	board.placePiece(Position(2, 2), BLACK_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	board.clearBoard();
+	board.placePiece(Position(0, 7), WHITE_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+
+	board.clearBoard();
+	board.placePiece(Position(7, 0), WHITE_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+
+	board.clearBoard();
+	board.placePiece(Position(7, 7), WHITE_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+}
+
+TEST ( WhiteQueenMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_QUEEN);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 21);
+}
+
+TEST ( WhiteKingMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_KING);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 3);
+}
+
