@@ -1,7 +1,22 @@
+#ifndef CHESSBOARD_H
+#define CHESSBOARD_H
 #include <utility>
 
-enum Pieces {NO_PIECE, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_PAWN, BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING};
+enum Pieces {NO_PIECE, OUTSIDE_BOARD,
+	WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, 
+	WHITE_QUEEN, WHITE_KING, WHITE_PAWN, 
+	BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, 
+	BLACK_BISHOP, BLACK_QUEEN, BLACK_KING};
 enum Side {WHITE, BLACK};
+
+class Position
+{
+public:
+	int column;
+	int row;
+	Position(int c, int r) {column = c; row = r;};
+	bool isEqualTo(Position b) {return (column == b.column) && (row == b.row);};
+};
 
 class ChessBoard {
 private:
@@ -17,9 +32,13 @@ public:
 	bool isWhiteKingUnderAttack();
 	bool isBlackKingUnderAttack();
 	void clearBoard();
-	void placePiece(int column, int row, Pieces piece);
+	void placePiece(Position pos, Pieces piece);
 	void setSideToMove(Side side);
 	Pieces firstPieceInDirection(int colum, int row, int dirColumn, int dirRow);
-	std::pair <int, int> locateWhiteKing();
-	std::pair <int, int> locateBlackKing();
+	Position locateWhiteKing();
+	Position locateBlackKing();
+	bool isLocationAttackedByBlackPieces(Position pos);
+	bool isLocationAttackedByWhitePieces(Position pos);
 };
+
+#endif

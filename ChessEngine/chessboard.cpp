@@ -2,6 +2,18 @@
 #include "chessboard.h"
 #include <assert.h>
 
+int kingMovesColumn[8] = { 0, -1, -1, -1,  0,  1,  1,  1};
+int kingMovesRow[8]    = { 1,  1,  0, -1, -1, -1,  0,  1};
+
+int knightMovesColumn[8] = { -1, -2, -2, -1,  1,  2,  2,  1};
+int knightMovesRow[8]    = {  2,  1, -1, -2, -2, -1,  1,  2};
+
+int rookDirectionsColumn[4] = { 1,  0, -1,  0};
+int rookDirectionsRow[4]    = { 0, -1,  0,  1};
+
+int bishopDirectionsColumn[4] = { 1,  1, -1, -1};
+int bishopDirectionsRow[4]    = { 1, -1, -1,  1};
+
 ChessBoard::ChessBoard()
 {
 
@@ -62,6 +74,10 @@ void ChessBoard::initializeGame()
 
 Pieces ChessBoard::get(int column, int row)
 {
+	if(column < 0 || column > 7)
+		return OUTSIDE_BOARD;
+	if(row < 0 || row > 7)
+		return OUTSIDE_BOARD;
 	return board[column][row];
 }
 
@@ -87,66 +103,112 @@ void ChessBoard::performMove(int column0, int row0, int column1, int row1)
 
 bool ChessBoard::isWhiteKingUnderAttack()
 {
-	std::pair <int, int> posOfWhiteKing = locateWhiteKing();
-	int column = posOfWhiteKing.first;
-	int row = posOfWhiteKing.second;
+	Position posOfWhiteKing = locateWhiteKing();
+	return isLocationAttackedByBlackPieces(posOfWhiteKing);
+}
 
+bool ChessBoard::isLocationAttackedByBlackPieces(Position pos)
+{
+	int column = pos.column;
+	int row = pos.row;
 	Pieces nearest;
-	// Above
-	nearest = firstPieceInDirection(column, row, 0, 1);
-	if(nearest == BLACK_ROOK)
+
+	// Look for rook like attacks
+	for(int i = 0; i < 8; i++)
+	{
+		nearest = firstPieceInDirection(column, row, rookDirectionsColumn[i], rookDirectionsRow[i]);
+		if(nearest == BLACK_ROOK)
+			return true;
+		if(nearest == BLACK_QUEEN)
+			return true;
+	}
+
+	// Look for bishop like attacks
+	for(int i = 0; i < 8; i++)
+	{
+		nearest = firstPieceInDirection(column, row, bishopDirectionsColumn[i], bishopDirectionsRow[i]);
+		if(nearest == BLACK_BISHOP)
+			return true;
+		if(nearest == BLACK_QUEEN)
+			return true;
+	}
+
+	// Look for knight attacks
+	for(int i = 0; i < 8; i++)
+	{
+		if(get(column + knightMovesColumn[i], row + knightMovesRow[i]) == BLACK_KNIGHT)
+			return true;
+	}
+
+	// Look for pawn attacks
+	if(get(column + 1, row + 1) == BLACK_PAWN)
 		return true;
-	if(nearest == BLACK_QUEEN)
+	if(get(column - 1, row + 1) == BLACK_PAWN)
 		return true;
-	// Below
-	nearest = firstPieceInDirection(column, row, 0, -1);
-	if(nearest == BLACK_ROOK)
+
+	// Look for king attacks
+	for(int i = 0; i < 8; i++)
+	{
+		if(get(column + kingMovesColumn[i], row + kingMovesRow[i]) == BLACK_KING)
+			return true;
+	}
+
+	return false;
+}
+
+bool ChessBoard::isLocationAttackedByWhitePieces(Position pos)
+{
+	int column = pos.column;
+	int row = pos.row;
+	Pieces nearest;
+
+	// Look for rook like attacks
+	for(int i = 0; i < 8; i++)
+	{
+		nearest = firstPieceInDirection(column, row, rookDirectionsColumn[i], rookDirectionsRow[i]);
+		if(nearest == WHITE_ROOK)
+			return true;
+		if(nearest == WHITE_QUEEN)
+			return true;
+	}
+
+	// Look for bishop like attacks
+	for(int i = 0; i < 8; i++)
+	{
+		nearest = firstPieceInDirection(column, row, bishopDirectionsColumn[i], bishopDirectionsRow[i]);
+		if(nearest == WHITE_BISHOP)
+			return true;
+		if(nearest == WHITE_QUEEN)
+			return true;
+	}
+
+	// Look for knight attacks
+	for(int i = 0; i < 8; i++)
+	{
+		if(get(column + knightMovesColumn[i], row + knightMovesRow[i]) == WHITE_KNIGHT)
+			return true;
+	}
+
+	// Look for pawn attacks
+	if(get(column + 1, row - 1) == WHITE_PAWN)
 		return true;
-	if(nearest == BLACK_QUEEN)
+	if(get(column - 1, row - 1) == WHITE_PAWN)
 		return true;
-	// Left
-	nearest = firstPieceInDirection(column, row, -1, 0);
-	if(nearest == BLACK_ROOK)
-		return true;
-	if(nearest == BLACK_QUEEN)
-		return true;
-	// Right
-	nearest = firstPieceInDirection(column, row, 1, 0);
-	if(nearest == BLACK_ROOK)
-		return true;
-	if(nearest == BLACK_QUEEN)
-		return true;
-	// Above right
-	nearest = firstPieceInDirection(column, row, 1, 1);
-	if(nearest == BLACK_BISHOP)
-		return true;
-	if(nearest == BLACK_QUEEN)
-		return true;
-	// Above left
-	nearest = firstPieceInDirection(column, row, 1, -1);
-	if(nearest == BLACK_BISHOP)
-		return true;
-	if(nearest == BLACK_QUEEN)
-		return true;
-	// Below right
-	nearest = firstPieceInDirection(column, row, -1, 1);
-	if(nearest == BLACK_BISHOP)
-		return true;
-	if(nearest == BLACK_QUEEN)
-		return true;
-	// Below left
-	nearest = firstPieceInDirection(column, row, -1, -1);
-	if(nearest == BLACK_BISHOP)
-		return true;
-	if(nearest == BLACK_QUEEN)
-		return true;
+
+	// Look for king attacks
+	for(int i = 0; i < 8; i++)
+	{
+		if(get(column + kingMovesColumn[i], row + kingMovesRow[i]) == WHITE_KING)
+			return true;
+	}
 
 	return false;
 }
 
 bool ChessBoard::isBlackKingUnderAttack()
 {
-	return false;
+	Position posOfWhiteKing = locateBlackKing();
+	return isLocationAttackedByWhitePieces(posOfWhiteKing);
 }
 
 void ChessBoard::clearBoard()
@@ -158,9 +220,9 @@ void ChessBoard::clearBoard()
 	toMove = WHITE;
 }
 
-void ChessBoard::placePiece(int column, int row, Pieces piece)
+void ChessBoard::placePiece(Position pos, Pieces piece)
 {
-	board[column][row] = piece;
+	board[pos.column][pos.row] = piece;
 }
 
 void ChessBoard::setSideToMove(Side side)
@@ -188,7 +250,7 @@ Pieces ChessBoard::firstPieceInDirection(int column, int row, int dirColumn, int
 	return NO_PIECE;
 }
 
-std::pair <int, int> ChessBoard::locateWhiteKing()
+Position ChessBoard::locateWhiteKing()
 {
 	// Locate position of the white king
 	int column = -1;
@@ -206,10 +268,10 @@ std::pair <int, int> ChessBoard::locateWhiteKing()
 	}
 
 	assert(column != -1);
-	return std::make_pair(column, row);
+	return Position(column, row);
 }
 
-std::pair <int, int> ChessBoard::locateBlackKing()
+Position ChessBoard::locateBlackKing()
 {
 	// Locate position of the white king
 	int column = -1;
@@ -227,5 +289,5 @@ std::pair <int, int> ChessBoard::locateBlackKing()
 	}
 
 	assert(column != -1);
-	return std::make_pair(column, row);
+	return Position(column, row);
 }

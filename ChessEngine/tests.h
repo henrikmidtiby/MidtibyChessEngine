@@ -113,7 +113,7 @@ TEST ( SetSideToMove )
 	CHECK(board.sideToMove() == BLACK);
 }
 
-TEST ( IsKingAttackedByRook )
+TEST ( IsWhiteKingAttackedByRook )
 {
 	ChessBoard board;
 	board.clearBoard();
@@ -150,6 +150,44 @@ TEST ( IsKingAttackedByRook )
 	CHECK(board.isWhiteKingUnderAttack());
 }
 
+TEST ( IsBlackKingAttackedByRook )
+{
+	ChessBoard board;
+	board.clearBoard();
+
+	// Place a rook above the king
+	board.placePiece(3, 3, BLACK_KING);
+	board.placePiece(3, 6, WHITE_ROOK);
+	CHECK(board.isBlackKingUnderAttack());
+
+	// Put a piece in between
+	board.placePiece(3, 5, BLACK_PAWN);
+	CHECK(!board.isBlackKingUnderAttack());
+
+	// Place a rook below the king
+	board.clearBoard();
+	board.placePiece(3, 6, BLACK_KING);
+	board.placePiece(3, 3, WHITE_ROOK);
+	CHECK(board.isBlackKingUnderAttack());
+
+	// Put a piece in between
+	board.placePiece(3, 5, BLACK_PAWN);
+	CHECK(!board.isBlackKingUnderAttack());
+
+	// Place a rook to the right of the king
+	board.clearBoard();
+	board.placePiece(1, 3, BLACK_KING);
+	board.placePiece(3, 3, WHITE_ROOK);
+	CHECK(board.isBlackKingUnderAttack());
+
+	// Place a rook to the left of the king
+	board.clearBoard();
+	board.placePiece(6, 3, BLACK_KING);
+	board.placePiece(3, 3, WHITE_ROOK);
+	CHECK(board.isBlackKingUnderAttack());
+}
+
+
 TEST ( FirstEncounteredPieceFromCurrentPosition )
 {
 	ChessBoard board;
@@ -169,8 +207,8 @@ TEST ( LocateKing )
 	ChessBoard board;
 	board.initializeGame();
 
-	CHECK(board.locateWhiteKing() == std::make_pair(4, 0));
-	CHECK(board.locateBlackKing() == std::make_pair(4, 7));
+	CHECK(board.locateWhiteKing().isEqualTo(Position(4, 0)));
+	CHECK(board.locateBlackKing().isEqualTo(Position(4, 7)));
 }
 
 TEST ( IsKingAttackedByBishop )
@@ -257,4 +295,125 @@ TEST ( IsKingAttackedByQueen )
 	board.placePiece(6, 3, WHITE_KING);
 	board.placePiece(3, 3, BLACK_QUEEN);
 	CHECK(board.isWhiteKingUnderAttack());
+}
+
+TEST ( IsKingAttackedByKnight )
+{
+	ChessBoard board;
+	board.clearBoard();
+
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(6, 6, BLACK_KNIGHT);
+	CHECK(!board.isWhiteKingUnderAttack());
+	board.placePiece(4, 5, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(2, 5, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(1, 4, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(1, 2, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(2, 1, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(4, 1, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(5, 2, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(5, 4, BLACK_KNIGHT);
+	CHECK(board.isWhiteKingUnderAttack());
+
+}
+
+TEST ( GetPieceFromOutsideTheBoard )
+{
+	ChessBoard board;
+	board.initializeGame();
+
+	CHECK(board.get(0, 0) == WHITE_ROOK);
+	CHECK(board.get(-1, 0) == OUTSIDE_BOARD);
+	CHECK(board.get(8, 0) == OUTSIDE_BOARD);
+	CHECK(board.get(0, -1) == OUTSIDE_BOARD);
+	CHECK(board.get(0, 8) == OUTSIDE_BOARD);
+}
+
+TEST ( IsKingAttackedByPawn )
+{
+	ChessBoard board;
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(4, 4, BLACK_PAWN);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(3, 3, WHITE_KING);
+	board.placePiece(2, 4, BLACK_PAWN);
+	CHECK(board.isWhiteKingUnderAttack());
+}
+
+TEST ( IsKingAttackedByKing )
+{
+	ChessBoard board;
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(3, 4), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(2, 4), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(2, 3), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(2, 2), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(3, 2), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(4, 2), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(4, 3), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(4, 4), BLACK_KING);
+	CHECK(board.isWhiteKingUnderAttack());
+
 }
