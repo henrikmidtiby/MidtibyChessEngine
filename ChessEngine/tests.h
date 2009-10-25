@@ -1,8 +1,4 @@
 #include "chessboard.h"
-TEST( HelloUnitTestPP )
-{
-	CHECK( true );
-}
 
 TEST( InitializeEmptyChessBoard )
 {
@@ -569,3 +565,180 @@ TEST ( WhiteKingMoves )
 	CHECK(moves.size() == 3);
 }
 
+TEST ( WhiteKnightMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.placePiece(Position(1, 0), WHITE_KNIGHT);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 3);	
+}
+
+TEST ( WhiteMovesFromOpeningPosition )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.initializeGame();
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 20);	
+}
+
+
+TEST ( BlackKnightMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(1, 0), BLACK_KNIGHT);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 3);	
+}
+
+TEST ( BlackPawnMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	// Single step forward
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(3, 5), BLACK_PAWN);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 1);
+
+	// Double step forward
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(3, 6), BLACK_PAWN);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	// Strike left 
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(3, 3), BLACK_PAWN);
+	board.placePiece(Position(2, 2), WHITE_KING);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	// Strike right 
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(3, 3), BLACK_PAWN);
+	board.placePiece(Position(4, 2), WHITE_KING);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+}
+
+TEST ( BlackKingMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 0), BLACK_KING);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 3);
+}
+
+TEST ( BlackBishopMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 0), BLACK_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+
+	board.placePiece(Position(2, 2), WHITE_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 7), BLACK_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(7, 0), BLACK_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(7, 7), BLACK_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 7);
+}
+
+TEST ( BlackRookMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 0), BLACK_ROOK);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 14);
+
+	board.placePiece(Position(1, 0), WHITE_BISHOP);
+	board.placePiece(Position(0, 1), WHITE_BISHOP);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 2);
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 0), BLACK_ROOK);
+	board.placePiece(Position(0, 1), BLACK_ROOK);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 20);
+}
+TEST ( BlackQueenMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 0), BLACK_QUEEN);
+	moves = board.PossibleMoves();
+	CHECK(moves.size() == 21);
+}
+
+TEST ( LegalWhiteMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_KING);
+	board.placePiece(Position(5, 0), BLACK_KING);
+	board.placePiece(Position(1, 0), BLACK_QUEEN);
+	moves = board.legalMoves();
+	CHECK(moves.size() == 1);
+}
+
+TEST ( LegalBlackMoves )
+{
+	ChessBoard board;
+	std::vector<Move> moves;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 0), BLACK_KING);
+	board.placePiece(Position(5, 0), WHITE_KING);
+	board.placePiece(Position(1, 0), WHITE_QUEEN);
+	moves = board.legalMoves();
+	CHECK(moves.size() == 1);
+}

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "chessboard.h"
 #include <assert.h>
+#include <string>
 
 int kingMovesColumn[8] = { 0, -1, -1, -1,  0,  1,  1,  1};
 int kingMovesRow[8]    = { 1,  1,  0, -1, -1, -1,  0,  1};
@@ -85,6 +86,22 @@ Side ChessBoard::sideToMove()
 {
 	return toMove;
 }
+
+void ChessBoard::performMove(Move mov)
+{
+	board[mov.to.column][mov.to.row] = board[mov.from.column][mov.from.row];
+	board[mov.from.column][mov.from.row] = NO_PIECE;
+
+	if(toMove == WHITE)
+	{
+		toMove = BLACK;
+	}
+	else
+	{
+		toMove = WHITE;
+	}
+}
+
 
 void ChessBoard::performMove(Position pos0, Position pos1)
 {
@@ -301,6 +318,10 @@ std::vector<Move> ChessBoard::PossibleMoves()
 	{
 		return PossibleWhiteMoves();
 	}
+	else
+	{
+		return PossibleBlackMoves();
+	}
 }
 
 std::vector<Move> ChessBoard::PossibleWhiteMoves()
@@ -318,6 +339,10 @@ std::vector<Move> ChessBoard::PossibleWhiteMoves()
 			if(board[column][row] == WHITE_ROOK)
 			{
 				moveLikeWhiteRook(column, row, moves);
+			}
+			if(board[column][row] == WHITE_KNIGHT)
+			{
+				moveLikeWhiteKnight(column, row, moves);
 			}
 			if(board[column][row] == WHITE_BISHOP)
 			{
@@ -457,5 +482,222 @@ void ChessBoard::moveLikeWhiteKing( int column, int row, std::vector<Move> &move
 	{
 		if(isBlackOrEmpty(get(column + kingMovesColumn[i], row + kingMovesRow[i])))
 			moves.push_back(Move(column, row, column + kingMovesColumn[i], row + kingMovesRow[i]));
+	}
+}
+
+void ChessBoard::moveLikeWhiteKnight( int column, int row, std::vector<Move> &moves )
+{
+	for(int i = 0; i < 8; i++)
+	{
+		if(isBlackOrEmpty(get(column + knightMovesColumn[i], row + knightMovesRow[i])))
+			moves.push_back(Move(column, row, column + knightMovesColumn[i], row + knightMovesRow[i]));
+	}
+}
+
+std::vector<Move> ChessBoard::PossibleBlackMoves()
+{
+	std::vector<Move> moves;
+
+	for(int column = 0; column < 8; column++)
+	{
+		for(int row = 0; row < 8; row++)
+		{
+			if(board[column][row] == BLACK_PAWN)
+			{
+				moveLikeBlackPawn(column, row, moves);
+			}
+			if(board[column][row] == BLACK_ROOK)
+			{
+				moveLikeBlackRook(column, row, moves);
+			}
+			if(board[column][row] == BLACK_KNIGHT)
+			{
+				moveLikeBlackKnight(column, row, moves);
+			}
+			if(board[column][row] == BLACK_BISHOP)
+			{
+				moveLikeBlackBishop(column, row, moves);
+			}
+			if(board[column][row] == BLACK_KING)
+			{
+				moveLikeBlackKing(column, row, moves);
+			}
+			if(board[column][row] == BLACK_QUEEN)
+			{
+				moveLikeBlackBishop(column, row, moves);
+				moveLikeBlackRook(column, row, moves);
+			}
+		}
+	}
+	return moves;
+}
+
+void ChessBoard::moveLikeBlackKnight( int column, int row, std::vector<Move> &moves )
+{
+	for(int i = 0; i < 8; i++)
+	{
+		if(isWhiteOrEmpty(get(column + knightMovesColumn[i], row + knightMovesRow[i])))
+			moves.push_back(Move(column, row, column + knightMovesColumn[i], row + knightMovesRow[i]));
+	}
+}
+
+void ChessBoard::moveLikeBlackPawn( int column, int row, std::vector<Move> &moves )
+{
+	if(board[column][row - 1] == NO_PIECE)
+	{
+		moves.push_back(Move(column, row, column, row - 1));
+		if(row == 6 && board[column][row - 2] == NO_PIECE)
+			moves.push_back(Move(column, row, column, row - 2));
+	}
+	if(isWhitePiece(board[column - 1][row - 1]))
+		moves.push_back(Move(column, row, column - 1, row - 1));
+	if(isWhitePiece(board[column + 1][row - 1]))
+		moves.push_back(Move(column, row, column + 1, row - 1));
+}
+
+void ChessBoard::moveLikeBlackKing( int column, int row, std::vector<Move> &moves )
+{
+	for(int i = 0; i < 8; i++)
+	{
+		if(isWhiteOrEmpty(get(column + kingMovesColumn[i], row + kingMovesRow[i])))
+			moves.push_back(Move(column, row, column + kingMovesColumn[i], row + kingMovesRow[i]));
+	}
+}
+
+void ChessBoard::moveBlackPieceInLine( int column, int row, int dcolumn, int drow, std::vector<Move> &moves )
+{
+	for(int i = 1; i < 8; i++)
+	{	
+		if(isOutsideBoard(Position(column + i*dcolumn, row + i*drow)))
+			break;
+		if(isWhiteOrEmpty(board[column + i*dcolumn][row + i*drow]))
+			moves.push_back((Move(column, row, column+i*dcolumn, row + i*drow)));
+		if(get(column+i*dcolumn, row + i*drow) != NO_PIECE)
+			break;
+	}
+}
+
+void ChessBoard::moveLikeBlackRook( int column, int row, std::vector<Move> &moves )
+{
+	moveBlackPieceInLine(column, row,  0,  1, moves);
+	moveBlackPieceInLine(column, row,  0, -1, moves);
+	moveBlackPieceInLine(column, row,  1,  0, moves);
+	moveBlackPieceInLine(column, row, -1,  0, moves);
+}
+
+void ChessBoard::moveLikeBlackBishop( int column, int row, std::vector<Move> &moves )
+{
+	moveBlackPieceInLine(column, row,  1,  1, moves);
+	moveBlackPieceInLine(column, row,  1, -1, moves);
+	moveBlackPieceInLine(column, row, -1,  1, moves);
+	moveBlackPieceInLine(column, row, -1, -1, moves);
+}
+
+std::vector<Move> ChessBoard::legalMoves()
+{
+	std::vector<Move> moves = PossibleMoves();
+	std::vector<Move> legalMovesList;
+	if(toMove == WHITE)
+	{
+		for(int i = 0; i < (int) moves.size(); i++)
+		{
+			Move curMove = moves.at(i);
+			ChessBoard tempPos(*this);
+			tempPos.performMove(curMove.from, curMove.to);
+			if(!tempPos.isWhiteKingUnderAttack())
+			{
+				legalMovesList.push_back(curMove);
+			}
+		}
+	}
+	else
+	{
+		for(int i = 0; i < (int) moves.size(); i++)
+		{
+			Move curMove = moves.at(i);
+			ChessBoard tempPos(*this);
+			tempPos.performMove(curMove.from, curMove.to);
+			if(!tempPos.isBlackKingUnderAttack())
+			{
+				legalMovesList.push_back(curMove);
+			}
+		}
+	}
+
+	return legalMovesList;
+}
+
+char ChessBoard::encodePiece(Pieces piece)
+{
+	if(piece == NO_PIECE)
+		return ' ';
+	if(piece == WHITE_PAWN)
+		return 'P';
+	if(piece == WHITE_ROOK)
+		return 'R';
+	if(piece == WHITE_KNIGHT)
+		return 'K';
+	if(piece == WHITE_BISHOP)
+		return 'B';
+	if(piece == WHITE_QUEEN)
+		return 'Q';
+	if(piece == WHITE_KING)
+		return 'K';
+	if(piece == BLACK_PAWN)
+		return 'p';
+	if(piece == BLACK_ROOK)
+		return 'r';
+	if(piece == BLACK_KNIGHT)
+		return 'k';
+	if(piece == BLACK_BISHOP)
+		return 'b';
+	if(piece == BLACK_QUEEN)
+		return 'q';
+	if(piece == BLACK_KING)
+		return 'k';
+	assert(1 != 2);
+	return 'x';
+}
+
+void ChessBoard::printBoard()
+{
+	if(toMove == WHITE)
+		printf("White to move\n");
+	else
+		printf("Black to move\n");
+
+	for(int row = 7; row > -1; row--)
+	{
+		printf("%d ", row + 1);
+		for(int column = 0; column < 8; column++)
+		{
+			Pieces temp = board[column][row];
+			if(temp == NO_PIECE)
+			{
+				if((column + row) % 2 == 1)
+				{
+					printf("# ");
+				}
+				else
+				{
+					printf("  ");
+				}
+			}
+			else
+			{
+				printf("%c ", encodePiece(temp));
+			}
+		}
+		printf("\n");
+	}
+	printf("  a b c d e f g h\n");
+}
+
+void ChessBoard::printMovesFromList(std::vector<Move> moves)
+{
+	for(int i = 0; i < (int) moves.size(); i++)
+	{
+		Move mov = moves.at(i);
+		printf("%2d: %c%d-%c%d\n", i + 1, mov.from.column + 'a', mov.from.row + 1, mov.to.column + 'a', mov.to.row + 1);
 	}
 }
