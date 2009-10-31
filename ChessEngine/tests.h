@@ -444,27 +444,27 @@ TEST ( WhitePawnMoves )
 	// Single step forward
 	board.clearBoard();
 	board.placePiece(Position(3, 2), WHITE_PAWN);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 1);
 
 	// Double step forward
 	board.clearBoard();
 	board.placePiece(Position(3, 1), WHITE_PAWN);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	// Strike left 
 	board.clearBoard();
 	board.placePiece(Position(3, 2), WHITE_PAWN);
 	board.placePiece(Position(2, 3), BLACK_KING);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	// Strike right 
 	board.clearBoard();
 	board.placePiece(Position(3, 2), WHITE_PAWN);
 	board.placePiece(Position(4, 3), BLACK_KING);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 }
@@ -492,18 +492,18 @@ TEST ( WhiteRookMoves )
 
 	board.clearBoard();
 	board.placePiece(Position(0, 0), WHITE_ROOK);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 14);
 
 	board.placePiece(Position(1, 0), BLACK_BISHOP);
 	board.placePiece(Position(0, 1), BLACK_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	board.clearBoard();
 	board.placePiece(Position(0, 0), WHITE_ROOK);
 	board.placePiece(Position(0, 1), WHITE_ROOK);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 20);
 }
 
@@ -520,26 +520,26 @@ TEST ( WhiteBishopMoves )
 
 	board.clearBoard();
 	board.placePiece(Position(0, 0), WHITE_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 
 	board.placePiece(Position(2, 2), BLACK_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	board.clearBoard();
 	board.placePiece(Position(0, 7), WHITE_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 
 	board.clearBoard();
 	board.placePiece(Position(7, 0), WHITE_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 
 	board.clearBoard();
 	board.placePiece(Position(7, 7), WHITE_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 }
 
@@ -550,7 +550,7 @@ TEST ( WhiteQueenMoves )
 
 	board.clearBoard();
 	board.placePiece(Position(0, 0), WHITE_QUEEN);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 21);
 }
 
@@ -561,7 +561,7 @@ TEST ( WhiteKingMoves )
 
 	board.clearBoard();
 	board.placePiece(Position(0, 0), WHITE_KING);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 3);
 }
 
@@ -572,7 +572,7 @@ TEST ( WhiteKnightMoves )
 
 	board.clearBoard();
 	board.placePiece(Position(1, 0), WHITE_KNIGHT);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 3);	
 }
 
@@ -582,7 +582,7 @@ TEST ( WhiteMovesFromOpeningPosition )
 	std::vector<Move> moves;
 
 	board.initializeGame();
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 20);	
 }
 
@@ -595,7 +595,7 @@ TEST ( BlackKnightMoves )
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(1, 0), BLACK_KNIGHT);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 3);	
 }
 
@@ -608,14 +608,14 @@ TEST ( BlackPawnMoves )
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(3, 5), BLACK_PAWN);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 1);
 
 	// Double step forward
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(3, 6), BLACK_PAWN);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	// Strike left 
@@ -623,7 +623,7 @@ TEST ( BlackPawnMoves )
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(3, 3), BLACK_PAWN);
 	board.placePiece(Position(2, 2), WHITE_KING);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	// Strike right 
@@ -631,7 +631,7 @@ TEST ( BlackPawnMoves )
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(3, 3), BLACK_PAWN);
 	board.placePiece(Position(4, 2), WHITE_KING);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 }
 
@@ -643,7 +643,7 @@ TEST ( BlackKingMoves )
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(0, 0), BLACK_KING);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 3);
 }
 
@@ -655,29 +655,29 @@ TEST ( BlackBishopMoves )
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(0, 0), BLACK_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 
 	board.placePiece(Position(2, 2), WHITE_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(0, 7), BLACK_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(7, 0), BLACK_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(7, 7), BLACK_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 7);
 }
 
@@ -689,19 +689,19 @@ TEST ( BlackRookMoves )
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(0, 0), BLACK_ROOK);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 14);
 
 	board.placePiece(Position(1, 0), WHITE_BISHOP);
 	board.placePiece(Position(0, 1), WHITE_BISHOP);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 2);
 
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(0, 0), BLACK_ROOK);
 	board.placePiece(Position(0, 1), BLACK_ROOK);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 20);
 }
 TEST ( BlackQueenMoves )
@@ -712,7 +712,7 @@ TEST ( BlackQueenMoves )
 	board.clearBoard();
 	board.setSideToMove(BLACK);
 	board.placePiece(Position(0, 0), BLACK_QUEEN);
-	moves = board.PossibleMoves();
+	moves = board.possibleMoves();
 	CHECK(moves.size() == 21);
 }
 
@@ -741,4 +741,214 @@ TEST ( LegalBlackMoves )
 	board.placePiece(Position(1, 0), WHITE_QUEEN);
 	moves = board.legalMoves();
 	CHECK(moves.size() == 1);
+}
+
+TEST ( LegalRookMoves )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.placePiece(Position(0, 7), WHITE_ROOK);
+	CHECK(!board.isLocationAttackedByWhitePieces(Position(1, 6)));
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 7), BLACK_ROOK);
+	CHECK(!board.isLocationAttackedByBlackPieces(Position(1, 6)));
+}
+
+TEST ( BlackIsCheckmate)
+{
+	ChessBoard board;
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+
+	board.placePiece(Position(3, 5), WHITE_KING);
+	board.placePiece(Position(3, 7), BLACK_KING);
+	CHECK(!board.isBlackMate());
+
+	board.placePiece(Position(0, 7), WHITE_ROOK);
+	CHECK(board.isBlackMate());
+
+
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(3, 5), WHITE_KING);
+	board.placePiece(Position(0, 7), WHITE_ROOK);
+	board.placePiece(Position(2, 7), BLACK_KING);
+
+	std::vector <Move> pMoves = board.possibleBlackMoves();
+
+	std::vector <Move> moves = board.legalMoves();
+	CHECK(moves.size() == 1);
+	CHECK(!board.isBlackMate());
+}
+
+
+TEST ( WhiteIsCheckmate)
+{
+	ChessBoard board;
+
+	board.clearBoard();
+	board.setSideToMove(WHITE);
+
+	board.placePiece(Position(3, 5), BLACK_KING);
+	board.placePiece(Position(3, 7), WHITE_KING);
+	CHECK(!board.isWhiteMate());
+
+	board.placePiece(Position(0, 7), BLACK_ROOK);
+	CHECK(board.isWhiteMate());
+
+
+	board.clearBoard();
+	board.setSideToMove(WHITE);
+	board.placePiece(Position(3, 5), BLACK_KING);
+	board.placePiece(Position(0, 7), BLACK_ROOK);
+	board.placePiece(Position(2, 7), WHITE_KING);
+
+	std::vector <Move> pMoves = board.possibleBlackMoves();
+
+	std::vector <Move> moves = board.legalMoves();
+	CHECK(moves.size() == 1);
+	CHECK(!board.isWhiteMate());
+}
+
+TEST ( PrintMoves )
+{
+	Move mov(0, 0, 0, 4);
+	CHECK(mov.toString() == "a1-a5");
+
+	mov = Move(1, 1, 5, 5);
+	CHECK(mov.toString() == "b2-f6");
+
+	mov = Move(3, 6, 3, 7, PROMOTE_TO_QUEEN);
+	CHECK(mov.toString() == "d7-d8Q");
+
+	mov = Move(3, 6, 3, 7, PROMOTE_TO_ROOK);
+	CHECK(mov.toString() == "d7-d8R");
+
+	mov = Move(3, 6, 3, 7, PROMOTE_TO_BISHOP);
+	CHECK(mov.toString() == "d7-d8B");
+
+	mov = Move(3, 6, 3, 7, PROMOTE_TO_KNIGHT);
+	CHECK(mov.toString() == "d7-d8N");
+
+	mov = Move(3, 6, 3, 7, CASTLE_SHORT);
+	CHECK(mov.toString() == "O-O");
+
+	mov = Move(3, 6, 3, 7, CASTLE_LONG);
+	CHECK(mov.toString() == "O-O-O");
+
+	// TODO
+	// Special notation for promotion and castling
+}
+
+
+TEST ( PromoteWhitePawn )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.placePiece(Position(4, 6), WHITE_PAWN);
+	std::vector<Move> moves = board.possibleMoves();
+	CHECK(moves.size() == 4);
+
+	board.placePiece(Position(5, 7), BLACK_KNIGHT);
+	moves = board.possibleMoves();
+	CHECK(moves.size() == 8);
+
+	ChessBoard board1(board);
+	board1.performMove(Move(Position(4, 6), Position(5, 7), PROMOTE_TO_QUEEN));
+	CHECK(board1.get(5, 7) == WHITE_QUEEN);
+
+	board1 = ChessBoard(board);
+	board1.performMove(Move(Position(4, 6), Position(5, 7), PROMOTE_TO_ROOK));
+	CHECK(board1.get(5, 7) == WHITE_ROOK);
+
+	board1 = ChessBoard(board);
+	board1.performMove(Move(Position(4, 6), Position(5, 7), PROMOTE_TO_KNIGHT));
+	CHECK(board1.get(5, 7) == WHITE_KNIGHT);
+
+	board1 = ChessBoard(board);
+	board1.performMove(Move(Position(4, 6), Position(5, 7), PROMOTE_TO_BISHOP));
+	CHECK(board1.get(5, 7) == WHITE_BISHOP);
+}
+
+
+TEST ( PromoteBlackPawn )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(4, 1), BLACK_PAWN);
+	std::vector<Move> moves = board.possibleMoves();
+	CHECK(moves.size() == 4);
+
+	board.placePiece(Position(5, 0), WHITE_KNIGHT);
+	moves = board.possibleMoves();
+	CHECK(moves.size() == 8);
+}
+
+TEST ( EvaluationDataType )
+{
+	CHECK(Evaluation(0) == Evaluation(0));
+	CHECK(Evaluation(0) != Evaluation(0, 0, WHITE_WINS));
+	CHECK(Evaluation(0, 1, WHITE_WINS) != Evaluation(0, 0, WHITE_WINS));
+	
+	CHECK(Evaluation(0, 1, WHITE_WINS) == Evaluation(0, 1, WHITE_WINS));
+	CHECK(Evaluation(0, 1, BLACK_WINS) != Evaluation(0, 1, WHITE_WINS));
+	CHECK(Evaluation(0.1) != Evaluation(0.0));
+
+	CHECK(Evaluation(0, 1, WHITE_WINS) > Evaluation(0, 1, BLACK_WINS));
+	CHECK(!(Evaluation(0, 1, BLACK_WINS) > Evaluation(0, 1, WHITE_WINS)));
+
+	CHECK(Evaluation(0, 1, WHITE_WINS) > Evaluation(0, 2, WHITE_WINS));
+	CHECK(!(Evaluation(0, 3, WHITE_WINS) > Evaluation(0, 2, WHITE_WINS)));
+
+	CHECK(Evaluation(0, 3, BLACK_WINS) > Evaluation(0, 2, BLACK_WINS));
+	CHECK(!(Evaluation(0, 1, BLACK_WINS) > Evaluation(0, 2, BLACK_WINS)));
+}
+
+TEST ( DetectMateUsingTheEvaluationFunction )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 7), WHITE_ROOK);
+	board.placePiece(Position(4, 5), WHITE_KING);
+	board.placePiece(Position(4, 7), BLACK_KING);
+	CHECK(board.staticEvaluation() == Evaluation(0, 0, WHITE_WINS));
+}
+
+TEST ( PieceValues )
+{
+	ChessBoard board;
+	CHECK(board.pieceValue(WHITE_KING) ==  100);
+	CHECK(board.pieceValue(BLACK_KING) == -100);
+	CHECK(board.pieceValue(WHITE_QUEEN) ==   9);
+	CHECK(board.pieceValue(BLACK_QUEEN) ==  -9);
+	CHECK(board.pieceValue(WHITE_ROOK) ==   5);
+	CHECK(board.pieceValue(BLACK_ROOK) ==  -5);
+	CHECK(board.pieceValue(WHITE_KNIGHT) ==   3);
+	CHECK(board.pieceValue(BLACK_KNIGHT) ==  -3);
+	CHECK(board.pieceValue(WHITE_BISHOP) ==   3);
+	CHECK(board.pieceValue(BLACK_BISHOP) ==  -3);
+	CHECK(board.pieceValue(WHITE_PAWN) ==   1);
+	CHECK(board.pieceValue(BLACK_PAWN) ==  -1);
+}
+
+TEST ( MaterialBalanceAtInitialPosition )
+{
+	ChessBoard board;
+	board.initializeGame();
+	CHECK(board.basicMaterialCount() == 0);
+}
+
+TEST ( FindMateInOneHalfMove )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_ROOK);
+	board.placePiece(Position(4, 5), WHITE_KING);
+	board.placePiece(Position(4, 7), BLACK_KING);
+	//CHECK(board.staticEvaluation() == Evaluation(0, 1));
 }

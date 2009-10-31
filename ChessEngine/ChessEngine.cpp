@@ -17,16 +17,25 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	ChessBoard board;
 	board.initializeGame();
+	board.clearBoard();
+	board.placePiece(Position(3, 3), WHITE_KING);
+	board.placePiece(Position(3, 6), WHITE_PAWN);
+	board.placePiece(Position(7, 3), BLACK_KING);
+
 
 	int counter = 0;
+
+	// Shortest possible mate 13, 11, 17, 14
 
 	while(true)
 	{
 		board.printBoard();
 		std::vector<Move> moves = board.legalMoves();
 		board.printMovesFromList(moves);
+		std::cout << "Enter move number: ";
 		std::cin >> counter;
-		board.performMove(moves.at(counter - 1));
+		if(counter <= (int) moves.size())
+			board.performMove(moves.at(counter - 1));
 	}
 	return 0;
 }
