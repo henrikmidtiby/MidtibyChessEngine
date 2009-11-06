@@ -39,7 +39,6 @@ public:
 		}
 		std::string res;
 		res.append(from.toString());
-		res.append(1, '-');
 		res.append(to.toString());
 		if(notice == PROMOTE_TO_QUEEN)
 		{
@@ -58,6 +57,20 @@ public:
 			res.append(1, 'N');
 		}
 		return res;
+	}
+	bool operator==(Move mov)
+	{
+		if(from.column != mov.from.column)
+			return false;
+		if(from.row!= mov.from.row)
+			return false;
+		if(to.column != mov.to.column)
+			return false;
+		if(to.row != mov.to.row)
+			return false;
+		if(notice != mov.notice)
+			return false;
+		return true;
 	}
 };
 

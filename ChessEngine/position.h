@@ -19,6 +19,14 @@ public:
 		res.append(1, '1' + row);
 		return res;
 	};
+	bool operator==(Position pos)
+	{
+		if(column != pos.column)
+			return false;
+		if(row != pos.row)
+			return false;
+		return true;
+	}
 };
 
 #endif

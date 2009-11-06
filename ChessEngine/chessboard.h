@@ -21,9 +21,11 @@ private:
 	Side toMove;
 
 public:
+	int bestMove;
 	ChessBoard();
 	void initializeGame();
 	Pieces get(int column, int row);
+	Pieces get(Position pos);
 	Side sideToMove();
 	void performMove(Move mov);
 	void performMove(Position pos0, Position pos1);
@@ -34,6 +36,7 @@ public:
 	std::vector<Move> possibleMoves();
 	void printBoard();
 	void printMovesFromList(std::vector<Move> moves);
+	void performBestMove();
 
 
 
@@ -71,6 +74,7 @@ public:
 	Evaluation staticEvaluation();
 	double pieceValue(Pieces piece);
 	double basicMaterialCount();
+	Evaluation dynamicEvaluation(int searchDepth);
 };
 
 

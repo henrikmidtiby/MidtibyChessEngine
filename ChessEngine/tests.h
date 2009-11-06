@@ -816,22 +816,22 @@ TEST ( WhiteIsCheckmate)
 TEST ( PrintMoves )
 {
 	Move mov(0, 0, 0, 4);
-	CHECK(mov.toString() == "a1-a5");
+	CHECK(mov.toString() == "a1a5");
 
 	mov = Move(1, 1, 5, 5);
-	CHECK(mov.toString() == "b2-f6");
+	CHECK(mov.toString() == "b2f6");
 
 	mov = Move(3, 6, 3, 7, PROMOTE_TO_QUEEN);
-	CHECK(mov.toString() == "d7-d8Q");
+	CHECK(mov.toString() == "d7d8Q");
 
 	mov = Move(3, 6, 3, 7, PROMOTE_TO_ROOK);
-	CHECK(mov.toString() == "d7-d8R");
+	CHECK(mov.toString() == "d7d8R");
 
 	mov = Move(3, 6, 3, 7, PROMOTE_TO_BISHOP);
-	CHECK(mov.toString() == "d7-d8B");
+	CHECK(mov.toString() == "d7d8B");
 
 	mov = Move(3, 6, 3, 7, PROMOTE_TO_KNIGHT);
-	CHECK(mov.toString() == "d7-d8N");
+	CHECK(mov.toString() == "d7d8N");
 
 	mov = Move(3, 6, 3, 7, CASTLE_SHORT);
 	CHECK(mov.toString() == "O-O");
@@ -906,6 +906,9 @@ TEST ( EvaluationDataType )
 
 	CHECK(Evaluation(0, 3, BLACK_WINS) > Evaluation(0, 2, BLACK_WINS));
 	CHECK(!(Evaluation(0, 1, BLACK_WINS) > Evaluation(0, 2, BLACK_WINS)));
+
+	CHECK(Evaluation(3) > Evaluation(2));
+	CHECK(!(Evaluation(1) > Evaluation(2)));
 }
 
 TEST ( DetectMateUsingTheEvaluationFunction )
@@ -922,18 +925,18 @@ TEST ( DetectMateUsingTheEvaluationFunction )
 TEST ( PieceValues )
 {
 	ChessBoard board;
-	CHECK(board.pieceValue(WHITE_KING) ==  100);
+	CHECK(board.pieceValue(WHITE_KING) == 100);
 	CHECK(board.pieceValue(BLACK_KING) == -100);
-	CHECK(board.pieceValue(WHITE_QUEEN) ==   9);
-	CHECK(board.pieceValue(BLACK_QUEEN) ==  -9);
-	CHECK(board.pieceValue(WHITE_ROOK) ==   5);
-	CHECK(board.pieceValue(BLACK_ROOK) ==  -5);
-	CHECK(board.pieceValue(WHITE_KNIGHT) ==   3);
-	CHECK(board.pieceValue(BLACK_KNIGHT) ==  -3);
-	CHECK(board.pieceValue(WHITE_BISHOP) ==   3);
-	CHECK(board.pieceValue(BLACK_BISHOP) ==  -3);
-	CHECK(board.pieceValue(WHITE_PAWN) ==   1);
-	CHECK(board.pieceValue(BLACK_PAWN) ==  -1);
+	CHECK(board.pieceValue(WHITE_QUEEN) == 9);
+	CHECK(board.pieceValue(BLACK_QUEEN) == -9);
+	CHECK(board.pieceValue(WHITE_ROOK) == 5);
+	CHECK(board.pieceValue(BLACK_ROOK) == -5);
+	CHECK(board.pieceValue(WHITE_KNIGHT) == 3);
+	CHECK(board.pieceValue(BLACK_KNIGHT) == -3);
+	CHECK(board.pieceValue(WHITE_BISHOP) == 3);
+	CHECK(board.pieceValue(BLACK_BISHOP) == -3);
+	CHECK(board.pieceValue(WHITE_PAWN) == 1);
+	CHECK(board.pieceValue(BLACK_PAWN) == -1);
 }
 
 TEST ( MaterialBalanceAtInitialPosition )
@@ -943,6 +946,20 @@ TEST ( MaterialBalanceAtInitialPosition )
 	CHECK(board.basicMaterialCount() == 0);
 }
 
+TEST ( FindMateInZeroHalfMoves )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.setSideToMove(BLACK);
+	board.placePiece(Position(0, 7), WHITE_ROOK);
+	board.placePiece(Position(4, 5), WHITE_KING);
+	board.placePiece(Position(4, 7), BLACK_KING);
+	Evaluation eval = board.dynamicEvaluation(0);
+	CHECK(eval == Evaluation(0, 0, WHITE_WINS));
+	eval = board.dynamicEvaluation(1);
+	CHECK(eval == Evaluation(0, 0, WHITE_WINS));
+}
+
 TEST ( FindMateInOneHalfMove )
 {
 	ChessBoard board;
@@ -950,5 +967,27 @@ TEST ( FindMateInOneHalfMove )
 	board.placePiece(Position(0, 0), WHITE_ROOK);
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(4, 7), BLACK_KING);
-	//CHECK(board.staticEvaluation() == Evaluation(0, 1));
+	Evaluation eval = board.dynamicEvaluation(1);
+	CHECK(eval == Evaluation(0, 1, WHITE_WINS));
+}
+
+TEST ( FindMateInThreeHalfMove )
+{
+	ChessBoard board;
+	board.clearBoard();
+	board.placePiece(Position(0, 0), WHITE_ROOK);
+	board.placePiece(Position(4, 5), WHITE_KING);
+	board.placePiece(Position(3, 7), BLACK_KING);
+	Evaluation eval = board.dynamicEvaluation(3);
+	CHECK(eval == Evaluation(0, 3, WHITE_WINS));
+}
+
+TEST ( IllegalMoveLocator )
+{
+	ChessBoard board;
+	board.initializeGame();
+	board.performMove(Move(Position(7, 1), Position(7, 3)));
+	board.performMove(Move(Position(3, 6), Position(3, 5)));
+	std::vector<Move> moves = board.legalMoves();
+	CHECK(moves.size() == 21);
 }

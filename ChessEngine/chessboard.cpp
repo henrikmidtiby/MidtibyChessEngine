@@ -18,7 +18,7 @@ int bishopDirectionsRow[4]    = { 1, -1, -1,  1};
 
 ChessBoard::ChessBoard()
 {
-
+	bestMove = 0;
 }
 
 void ChessBoard::initializeGame()
@@ -83,6 +83,11 @@ Pieces ChessBoard::get(int column, int row)
 	return board[column][row];
 }
 
+Pieces ChessBoard::get(Position pos)
+{
+	return get(pos.column, pos.row);
+}
+
 Side ChessBoard::sideToMove()
 {
 	return toMove;
@@ -90,6 +95,10 @@ Side ChessBoard::sideToMove()
 
 void ChessBoard::performMove(Move mov)
 {
+	if(get(mov.from) == OUTSIDE_BOARD || get(mov.to) == OUTSIDE_BOARD)
+	{
+		assert(false);
+	}
 	if(mov.notice == STANDARD_MOVE)
 	{
 		board[mov.to.column][mov.to.row] = board[mov.from.column][mov.from.row];
@@ -521,26 +530,26 @@ void ChessBoard::moveLikeWhitePawn( int column, int row, std::vector<Move> &move
 		{
 			promotePawnMove(Position(column, row), Position(column, row + 1), moves);
 		}
-		if(isBlackPiece(board[column - 1][row + 1]))
+		if(isBlackPiece(get(column - 1, row + 1)))
 		{
 			promotePawnMove(Position(column, row), Position(column - 1, row + 1), moves);
 		}
-		if(isBlackPiece(board[column + 1][row + 1]))
+		if(isBlackPiece(get(column + 1, row + 1)))
 		{
 			promotePawnMove(Position(column, row), Position(column + 1, row + 1), moves);
 		}
 	}
 	else
 	{
-		if(board[column][row + 1] == NO_PIECE)
+		if(get(column, row + 1) == NO_PIECE)
 		{
 			moves.push_back(Move(column, row, column, row + 1));
-			if(row == 1 && board[column][row + 2] == NO_PIECE)
+			if(row == 1 && get(column, row + 2) == NO_PIECE)
 				moves.push_back(Move(column, row, column, row + 2));
 		}
-		if(isBlackPiece(board[column - 1][row + 1]))
+		if(isBlackPiece(get(column - 1, row + 1)))
 			moves.push_back(Move(column, row, column - 1, row + 1));
-		if(isBlackPiece(board[column + 1][row + 1]))
+		if(isBlackPiece(get(column + 1, row + 1)))
 			moves.push_back(Move(column, row, column + 1, row + 1));
 	}
 }
@@ -614,11 +623,11 @@ void ChessBoard::moveLikeBlackPawn( int column, int row, std::vector<Move> &move
 {
 	if(row == 1)
 	{
-		if(board[column][row - 1] == NO_PIECE)
+		if(get(column, row - 1) == NO_PIECE)
 			promotePawnMove(Position(column, row), Position(column, row - 1), moves);
-		if(isWhitePiece(board[column - 1][row - 1]))
+		if(isWhitePiece(get(column - 1, row - 1)))
 			promotePawnMove(Position(column, row), Position(column - 1, row - 1), moves);
-		if(isWhitePiece(board[column + 1][row - 1]))
+		if(isWhitePiece(get(column + 1, row - 1)))
 			promotePawnMove(Position(column, row), Position(column + 1, row - 1), moves);
 	}
 	else
@@ -626,12 +635,12 @@ void ChessBoard::moveLikeBlackPawn( int column, int row, std::vector<Move> &move
 		if(board[column][row - 1] == NO_PIECE)
 		{
 			moves.push_back(Move(column, row, column, row - 1));
-			if(row == 6 && board[column][row - 2] == NO_PIECE)
+			if(row == 6 && get(column, row - 2) == NO_PIECE)
 				moves.push_back(Move(column, row, column, row - 2));
 		}
-		if(isWhitePiece(board[column - 1][row - 1]))
+		if(isWhitePiece(get(column - 1, row - 1)))
 			moves.push_back(Move(column, row, column - 1, row - 1));
-		if(isWhitePiece(board[column + 1][row - 1]))
+		if(isWhitePiece(get(column + 1, row - 1)))
 			moves.push_back(Move(column, row, column + 1, row - 1));
 	}
 }
@@ -717,7 +726,7 @@ char ChessBoard::encodePiece(Pieces piece)
 	if(piece == WHITE_ROOK)
 		return 'R';
 	if(piece == WHITE_KNIGHT)
-		return 'K';
+		return 'N';
 	if(piece == WHITE_BISHOP)
 		return 'B';
 	if(piece == WHITE_QUEEN)
@@ -729,7 +738,7 @@ char ChessBoard::encodePiece(Pieces piece)
 	if(piece == BLACK_ROOK)
 		return 'r';
 	if(piece == BLACK_KNIGHT)
-		return 'k';
+		return 'n';
 	if(piece == BLACK_BISHOP)
 		return 'b';
 	if(piece == BLACK_QUEEN)
@@ -856,6 +865,82 @@ Evaluation ChessBoard::staticEvaluation()
 
 	double evaluation = 0;
 	evaluation += basicMaterialCount();
+	evaluation += 0.0001 * rand() / RAND_MAX;
 
 	return Evaluation(evaluation);
+}
+
+Evaluation ChessBoard::dynamicEvaluation(int searchDepth)
+{
+	if(searchDepth == 0)
+		return staticEvaluation();
+
+	std::vector<Move> moves = legalMoves();
+	if (moves.empty())
+	{
+		if(toMove == WHITE)
+		{
+			if(isWhiteMate())
+			{
+				return Evaluation(0, 0, BLACK_WINS);
+			}
+			else
+			{
+				return Evaluation(0);
+			}
+		}
+		else
+		{
+			if(isBlackMate())
+			{
+				return Evaluation(0, 0, WHITE_WINS);
+			}
+			else
+			{
+				return Evaluation(0);
+			}
+		}
+	}
+
+
+	ChessBoard tempBoard1(*this);
+	assert(moves.size() > 0);
+	tempBoard1.performMove(moves.at(0));
+	Evaluation currentBest = tempBoard1.dynamicEvaluation(searchDepth - 1);
+	int currentBestMove = 0;
+	for(int i = 1; i < moves.size(); i++)
+	{
+		if(currentBestMove > i)
+			assert(currentBestMove < i);
+		ChessBoard tempBoard(*this);
+		assert(moves.size() > i);
+		tempBoard.performMove(moves.at(i));
+		Evaluation eval = tempBoard.dynamicEvaluation(searchDepth - 1);
+		if(toMove == WHITE)
+		{
+			if(eval > currentBest)
+			{
+				currentBest = eval;
+				currentBestMove = i;
+			}
+		}
+		else
+		{
+			if(eval < currentBest)
+			{
+				currentBest = eval;
+				currentBestMove = i;
+			}
+		}
+	}
+
+	bestMove = currentBestMove;
+	currentBest.increaseMovesToMateByOne();
+	return currentBest;
+}
+
+void ChessBoard::performBestMove()
+{
+	std::vector<Move> moves = legalMoves();
+	performMove(moves.at(bestMove));
 }

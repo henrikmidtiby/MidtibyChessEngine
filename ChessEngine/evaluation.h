@@ -66,8 +66,37 @@ public:
 		{
 			return mateIn < val.mateIn;
 		}
-
-		return false;
+		return boardEvaluation > val.boardEvaluation;
+	}
+	bool operator<(Evaluation val)
+	{
+		return val > *this;
+	}
+	void increaseMovesToMateByOne()
+	{
+		if(mateState != NO_MATE)
+			mateIn++;
+	}
+	double getBoardEvaluation()
+	{
+		return boardEvaluation;
+	}
+	std::string toString()
+	{
+		char buffer[50];
+		if(mateState == NO_MATE)
+		{
+			sprintf_s(buffer, 50, "%d", boardEvaluation*100);
+		}
+		else if(mateState == WHITE_WINS)
+		{
+			sprintf_s(buffer, 50, "Black is mate in %d half moves", mateIn);
+		}
+		else
+		{
+			sprintf_s(buffer, 50, "White is mate in %d half moves", mateIn);
+		}
+		return std::string(buffer);
 	}
 };
 
