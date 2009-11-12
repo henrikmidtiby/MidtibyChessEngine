@@ -2,8 +2,8 @@
 #define MOVE_H
 #include "position.h"
 
-enum MoveSpecial {STANDARD_MOVE, CASTLE_LONG, 
-CASTLE_SHORT, PROMOTE_TO_QUEEN, PROMOTE_TO_ROOK, 
+enum MoveSpecial {STANDARD_MOVE, CASTLE_QUEEN, 
+CASTLE_KING, PROMOTE_TO_QUEEN, PROMOTE_TO_ROOK, 
 PROMOTE_TO_KNIGHT, PROMOTE_TO_BISHOP};
 
 
@@ -29,13 +29,13 @@ public:
 	};
 	std::string toString()
 	{
-		if(notice == CASTLE_SHORT)
+		if(notice == CASTLE_KING)
 		{
-			return std::string("O-O");
+//			return std::string("O-O");
 		}
-		if(notice == CASTLE_LONG)
+		if(notice == CASTLE_QUEEN)
 		{
-			return std::string("O-O-O");
+//			return std::string("O-O-O");
 		}
 		std::string res;
 		res.append(from.toString());

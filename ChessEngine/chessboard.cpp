@@ -18,6 +18,11 @@ int bishopDirectionsRow[4]    = { 1, -1, -1,  1};
 
 ChessBoard::ChessBoard()
 {
+	whiteCastleKing = true;
+	whiteCastleQueen = true;
+	blackCastleKing = true;
+	blackCastleQueen = true;
+
 	bestMove = 0;
 }
 
@@ -95,18 +100,107 @@ Side ChessBoard::sideToMove()
 
 void ChessBoard::performMove(Move mov)
 {
+	performMoveWrapper(mov);
+
+	// Remove castling rights
+	if(board[0][0] != WHITE_ROOK)
+		whiteCastleQueen = false;
+	if(board[7][0] != WHITE_ROOK)
+		whiteCastleKing = false;
+	if(board[4][0] != WHITE_KING)
+	{
+		whiteCastleKing = false;
+		whiteCastleQueen = false;
+	}
+
+	if(board[0][7] != BLACK_ROOK)
+		blackCastleQueen = false;
+	if(board[7][7] != BLACK_ROOK)
+		blackCastleKing = false;
+	if(board[4][7] != BLACK_KING)
+	{
+		blackCastleKing = false;
+		blackCastleQueen = false;
+	}
+}
+
+void ChessBoard::performMoveWrapper(Move mov)
+{
 	if(get(mov.from) == OUTSIDE_BOARD || get(mov.to) == OUTSIDE_BOARD)
 	{
 		assert(false);
 	}
+
+
+	if(toMove == WHITE)
+	{
+		toMove = BLACK;
+	}
+	else
+	{
+		toMove = WHITE;
+	}
+
 	if(mov.notice == STANDARD_MOVE)
 	{
+		// Detect casteling
+		if(mov.from.column == 4 
+			&& mov.from.row == 0 
+			&& mov.to.row == 0
+			&& board[mov.from.column][mov.from.row] == WHITE_KING)
+		{
+			if(mov.to.column == 2)
+			{
+				// Queen side
+				board[4][0] = NO_PIECE;
+				board[0][0] = NO_PIECE;
+				board[2][0] = WHITE_KING;
+				board[3][0] = WHITE_ROOK;
+				return;
+			}
+			if(mov.to.column == 6)
+			{
+				// King side
+				board[4][0] = NO_PIECE;
+				board[7][0] = NO_PIECE;
+				board[6][0] = WHITE_KING;
+				board[5][0] = WHITE_ROOK;
+				return;
+			}
+
+		}
+		// Detect casteling
+		if(mov.from.column == 4 
+			&& mov.from.row == 7 
+			&& mov.to.row == 7
+			&& board[mov.from.column][mov.from.row] == BLACK_KING)
+		{
+			if(mov.to.column == 2)
+			{
+				// Queen side
+				board[4][7] = NO_PIECE;
+				board[0][7] = NO_PIECE;
+				board[2][7] = BLACK_KING;
+				board[3][7] = BLACK_ROOK;
+				return;
+			}
+			if(mov.to.column == 6)
+			{
+				// King side
+				board[4][7] = NO_PIECE;
+				board[7][7] = NO_PIECE;
+				board[6][7] = BLACK_KING;
+				board[5][7] = BLACK_ROOK;
+				return;
+			}
+
+		}
 		board[mov.to.column][mov.to.row] = board[mov.from.column][mov.from.row];
 		board[mov.from.column][mov.from.row] = NO_PIECE;
 	}
 	else if(mov.notice == PROMOTE_TO_QUEEN)
 	{
-		if(toMove == WHITE)
+		if(toMove == BLACK)
 		{
 			board[mov.to.column][mov.to.row] = WHITE_QUEEN;
 		}
@@ -118,7 +212,7 @@ void ChessBoard::performMove(Move mov)
 	}
 	else if(mov.notice == PROMOTE_TO_ROOK)
 	{
-		if(toMove == WHITE)
+		if(toMove == BLACK)
 		{
 			board[mov.to.column][mov.to.row] = WHITE_ROOK;
 		}
@@ -130,7 +224,7 @@ void ChessBoard::performMove(Move mov)
 	}
 	else if(mov.notice == PROMOTE_TO_KNIGHT)
 	{
-		if(toMove == WHITE)
+		if(toMove == BLACK)
 		{
 			board[mov.to.column][mov.to.row] = WHITE_KNIGHT;
 		}
@@ -142,7 +236,7 @@ void ChessBoard::performMove(Move mov)
 	}
 	else if(mov.notice == PROMOTE_TO_BISHOP)
 	{
-		if(toMove == WHITE)
+		if(toMove == BLACK)
 		{
 			board[mov.to.column][mov.to.row] = WHITE_BISHOP;
 		}
@@ -153,14 +247,6 @@ void ChessBoard::performMove(Move mov)
 		board[mov.from.column][mov.from.row] = NO_PIECE;
 	}
 
-	if(toMove == WHITE)
-	{
-		toMove = BLACK;
-	}
-	else
-	{
-		toMove = WHITE;
-	}
 }
 
 
@@ -281,6 +367,10 @@ bool ChessBoard::isBlackKingUnderAttack()
 
 void ChessBoard::clearBoard()
 {
+	whiteCastleKing = false;
+	whiteCastleQueen = false;
+	blackCastleKing = false;
+	blackCastleQueen = false;
 	for(int i = 0; i < 8; i++)
 		for(int j = 0; j < 8; j++)
 			board[i][j] = NO_PIECE;
@@ -407,9 +497,12 @@ std::vector<Move> ChessBoard::possibleWhiteMoves()
 			if(board[column][row] == WHITE_KING)
 			{
 				moveLikeWhiteKing(column, row, moves);
+				whiteCastling(moves);
 			}
 		}
 	}
+
+
 	return moves;
 }
 
@@ -599,6 +692,7 @@ std::vector<Move> ChessBoard::possibleBlackMoves()
 			if(board[column][row] == BLACK_KING)
 			{
 				moveLikeBlackKing(column, row, moves);
+				blackCastling(moves);
 			}
 			if(board[column][row] == BLACK_QUEEN)
 			{
@@ -870,8 +964,10 @@ Evaluation ChessBoard::staticEvaluation()
 	return Evaluation(evaluation);
 }
 
-Evaluation ChessBoard::dynamicEvaluation(int searchDepth)
+Evaluation ChessBoard::dynamicEvaluation(int searchDepth, int * nodeCount)
 {
+	(*nodeCount)++;
+
 	if(searchDepth == 0)
 		return staticEvaluation();
 
@@ -880,7 +976,7 @@ Evaluation ChessBoard::dynamicEvaluation(int searchDepth)
 	{
 		if(toMove == WHITE)
 		{
-			if(isWhiteMate())
+			if(isWhiteKingUnderAttack())
 			{
 				return Evaluation(0, 0, BLACK_WINS);
 			}
@@ -891,7 +987,7 @@ Evaluation ChessBoard::dynamicEvaluation(int searchDepth)
 		}
 		else
 		{
-			if(isBlackMate())
+			if(isBlackKingUnderAttack())
 			{
 				return Evaluation(0, 0, WHITE_WINS);
 			}
@@ -906,7 +1002,7 @@ Evaluation ChessBoard::dynamicEvaluation(int searchDepth)
 	ChessBoard tempBoard1(*this);
 	assert(moves.size() > 0);
 	tempBoard1.performMove(moves.at(0));
-	Evaluation currentBest = tempBoard1.dynamicEvaluation(searchDepth - 1);
+	Evaluation currentBest = tempBoard1.dynamicEvaluation(searchDepth - 1, nodeCount);
 	int currentBestMove = 0;
 	for(int i = 1; i < moves.size(); i++)
 	{
@@ -915,7 +1011,7 @@ Evaluation ChessBoard::dynamicEvaluation(int searchDepth)
 		ChessBoard tempBoard(*this);
 		assert(moves.size() > i);
 		tempBoard.performMove(moves.at(i));
-		Evaluation eval = tempBoard.dynamicEvaluation(searchDepth - 1);
+		Evaluation eval = tempBoard.dynamicEvaluation(searchDepth - 1, nodeCount);
 		if(toMove == WHITE)
 		{
 			if(eval > currentBest)
@@ -943,4 +1039,168 @@ void ChessBoard::performBestMove()
 {
 	std::vector<Move> moves = legalMoves();
 	performMove(moves.at(bestMove));
+}
+
+void ChessBoard::setupBoardFromFen(char* inputString)
+{
+	// rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1
+	
+	int row = 7;
+	int column = 0;
+
+	int index = 0;
+	bool moreToCome = true;
+	while(moreToCome)
+	{
+		char t = inputString[index];
+		if(t == 'r'){
+			board[column][row] = BLACK_ROOK;
+			column++;}
+		else if(t == 'n'){
+			board[column][row] = BLACK_KNIGHT;
+			column++;}
+		else if(t == 'b'){
+			board[column][row] = BLACK_BISHOP;
+			column++;}
+		else if(t == 'q'){
+			board[column][row] = BLACK_QUEEN;
+			column++;}
+		else if(t == 'k'){
+			board[column][row] = BLACK_KING;
+			column++;}
+		else if(t == 'p'){
+			board[column][row] = BLACK_PAWN;
+			column++;}
+		else if(t == 'R'){
+			board[column][row] = WHITE_ROOK;
+			column++;}
+		else if(t == 'N'){
+			board[column][row] = WHITE_KNIGHT;
+			column++;}
+		else if(t == 'B'){
+			board[column][row] = WHITE_BISHOP;
+			column++;}
+		else if(t == 'Q'){
+			board[column][row] = WHITE_QUEEN;
+			column++;}
+		else if(t == 'K'){
+			board[column][row] = WHITE_KING;
+			column++;}
+		else if(t == 'P'){
+			board[column][row] = WHITE_PAWN;
+			column++;}
+		else if(t == '/'){
+			row--;
+			column = 0;}
+		else if('0' < t && t < '9') {
+			for(int i = 0; i < t - '0'; i++)
+			{
+				board[column][row] = NO_PIECE;
+				column++;
+			}
+		}
+		else 
+			moreToCome = false;
+		index++;
+	}
+
+	// Read side to move
+	char t = inputString[index];
+	if(t == 'w')
+	{
+		toMove = WHITE;
+	}
+	else
+	{
+		assert(t == 'b');
+		toMove = BLACK;
+	}
+
+	// Read castling rights
+	index += 2;
+	t = inputString[index];
+	whiteCastleKing = false;
+	whiteCastleQueen = false;
+	blackCastleKing = false;
+	blackCastleQueen = false;
+	while(t != ' ')
+	{
+		if(t == 'K')
+			whiteCastleKing = true;
+		if(t == 'k')
+			blackCastleKing = true;
+		if(t == 'Q')
+			whiteCastleQueen = true;
+		if(t == 'q')
+			blackCastleQueen = true;
+		index++;
+		t = inputString[index];
+	}
+
+	// Read en pessant square
+}
+
+
+void ChessBoard::whiteCastling( std::vector<Move> &moves )
+{
+	if(whiteCastleKing == true)
+	{
+		if(isWhiteKingUnderAttack())
+		{
+			return;
+		}
+		if(get(Position(5, 0)) == NO_PIECE 
+			&& isLocationAttackedByBlackPieces(Position(5, 0)) == false 
+			&& get(Position(6, 0)) == NO_PIECE
+			&& isLocationAttackedByBlackPieces(Position(6, 0)) == false)
+		{
+			moves.push_back(Move(Position(4, 0), Position(6, 0), CASTLE_KING));
+		}
+	}
+	if(whiteCastleQueen == true)
+	{
+		if(isWhiteKingUnderAttack())
+		{
+			return;
+		}
+		if(get(Position(3, 0)) == NO_PIECE 
+			&& isLocationAttackedByBlackPieces(Position(3, 0)) == false 
+			&& get(Position(2, 0)) == NO_PIECE
+			&& isLocationAttackedByBlackPieces(Position(2, 0)) == false)
+		{
+			moves.push_back(Move(Position(4, 0), Position(2, 0), CASTLE_QUEEN));
+		}
+	}
+}
+
+void ChessBoard::blackCastling( std::vector<Move> &moves )
+{
+	if(blackCastleKing == true)
+	{
+		if(isBlackKingUnderAttack())
+		{
+			return;
+		}
+		if(get(Position(5, 7)) == NO_PIECE 
+			&& get(Position(6, 7)) == NO_PIECE
+			&& isLocationAttackedByWhitePieces(Position(5, 7)) == false 
+			&& isLocationAttackedByWhitePieces(Position(6, 7)) == false)
+		{
+			moves.push_back(Move(Position(4, 7), Position(6, 7), CASTLE_KING));
+		}
+	}
+	if(blackCastleQueen == true)
+	{
+		if(isBlackKingUnderAttack())
+		{
+			return;
+		}
+		if(get(Position(3, 7)) == NO_PIECE 
+			&& get(Position(2, 7)) == NO_PIECE
+			&& isLocationAttackedByWhitePieces(Position(3, 7)) == false 
+			&& isLocationAttackedByWhitePieces(Position(2, 7)) == false)
+		{
+			moves.push_back(Move(Position(4, 7), Position(2, 7), CASTLE_QUEEN));
+		}
+	}
 }

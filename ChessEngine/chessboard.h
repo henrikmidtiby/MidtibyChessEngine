@@ -22,6 +22,11 @@ private:
 
 public:
 	int bestMove;
+	bool whiteCastleKing;
+	bool whiteCastleQueen;
+	bool blackCastleKing;
+	bool blackCastleQueen;
+
 	ChessBoard();
 	void initializeGame();
 	Pieces get(int column, int row);
@@ -29,6 +34,7 @@ public:
 	Side sideToMove();
 	void performMove(Move mov);
 	void performMove(Position pos0, Position pos1);
+	void performMoveWrapper(Move mov);
 	void clearBoard();
 	void placePiece(Position pos, Pieces piece);
 	void setSideToMove(Side side);
@@ -37,6 +43,7 @@ public:
 	void printBoard();
 	void printMovesFromList(std::vector<Move> moves);
 	void performBestMove();
+	void setupBoardFromFen(char * inputString);
 
 
 
@@ -74,7 +81,9 @@ public:
 	Evaluation staticEvaluation();
 	double pieceValue(Pieces piece);
 	double basicMaterialCount();
-	Evaluation dynamicEvaluation(int searchDepth);
+	Evaluation dynamicEvaluation(int searchDepth, int * nodeCount);
+	void whiteCastling( std::vector<Move> &moves );
+	void blackCastling( std::vector<Move> &moves );
 };
 
 

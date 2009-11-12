@@ -833,11 +833,11 @@ TEST ( PrintMoves )
 	mov = Move(3, 6, 3, 7, PROMOTE_TO_KNIGHT);
 	CHECK(mov.toString() == "d7d8N");
 
-	mov = Move(3, 6, 3, 7, CASTLE_SHORT);
-	CHECK(mov.toString() == "O-O");
+	mov = Move(3, 6, 3, 7, CASTLE_KING);
+//	CHECK(mov.toString() == "O-O");
 
-	mov = Move(3, 6, 3, 7, CASTLE_LONG);
-	CHECK(mov.toString() == "O-O-O");
+	mov = Move(3, 6, 3, 7, CASTLE_QUEEN);
+//	CHECK(mov.toString() == "O-O-O");
 
 	// TODO
 	// Special notation for promotion and castling
@@ -954,9 +954,10 @@ TEST ( FindMateInZeroHalfMoves )
 	board.placePiece(Position(0, 7), WHITE_ROOK);
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(4, 7), BLACK_KING);
-	Evaluation eval = board.dynamicEvaluation(0);
+	int nodeCount = 0;
+	Evaluation eval = board.dynamicEvaluation(0, &nodeCount);
 	CHECK(eval == Evaluation(0, 0, WHITE_WINS));
-	eval = board.dynamicEvaluation(1);
+	eval = board.dynamicEvaluation(1, &nodeCount);
 	CHECK(eval == Evaluation(0, 0, WHITE_WINS));
 }
 
@@ -967,7 +968,8 @@ TEST ( FindMateInOneHalfMove )
 	board.placePiece(Position(0, 0), WHITE_ROOK);
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(4, 7), BLACK_KING);
-	Evaluation eval = board.dynamicEvaluation(1);
+	int nodeCount = 0;
+	Evaluation eval = board.dynamicEvaluation(1, &nodeCount);
 	CHECK(eval == Evaluation(0, 1, WHITE_WINS));
 }
 
@@ -978,7 +980,8 @@ TEST ( FindMateInThreeHalfMove )
 	board.placePiece(Position(0, 0), WHITE_ROOK);
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(3, 7), BLACK_KING);
-	Evaluation eval = board.dynamicEvaluation(3);
+	int nodeCount = 0;
+	Evaluation eval = board.dynamicEvaluation(3, &nodeCount);
 	CHECK(eval == Evaluation(0, 3, WHITE_WINS));
 }
 
@@ -990,4 +993,93 @@ TEST ( IllegalMoveLocator )
 	board.performMove(Move(Position(3, 6), Position(3, 5)));
 	std::vector<Move> moves = board.legalMoves();
 	CHECK(moves.size() == 21);
+}
+
+TEST ( BuildPositionFromFen )
+{
+	ChessBoard board;
+	board.setupBoardFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+	CHECK(board.get(0, 0) == WHITE_ROOK);
+	CHECK(board.get(1, 0) == WHITE_KNIGHT);
+	CHECK(board.get(2, 0) == WHITE_BISHOP);
+	CHECK(board.get(3, 0) == WHITE_QUEEN);
+	CHECK(board.get(4, 0) == WHITE_KING);
+	CHECK(board.get(5, 0) == WHITE_BISHOP);
+	CHECK(board.get(6, 0) == WHITE_KNIGHT);
+	CHECK(board.get(7, 0) == WHITE_ROOK);
+
+	CHECK(board.get(0, 1) == WHITE_PAWN);
+	CHECK(board.get(1, 1) == WHITE_PAWN);
+	CHECK(board.get(2, 1) == WHITE_PAWN);
+	CHECK(board.get(3, 1) == WHITE_PAWN);
+	CHECK(board.get(4, 1) == WHITE_PAWN);
+	CHECK(board.get(5, 1) == WHITE_PAWN);
+	CHECK(board.get(6, 1) == WHITE_PAWN);
+	CHECK(board.get(7, 1) == WHITE_PAWN);
+
+	for(int i = 0; i < 8; i++)
+	{
+		for(int j = 2; j < 6; j++)
+		{
+			CHECK(board.get(i, j) == NO_PIECE);
+		}
+	}
+
+	CHECK(board.get(0, 6) == BLACK_PAWN);
+	CHECK(board.get(1, 6) == BLACK_PAWN);
+	CHECK(board.get(2, 6) == BLACK_PAWN);
+	CHECK(board.get(3, 6) == BLACK_PAWN);
+	CHECK(board.get(4, 6) == BLACK_PAWN);
+	CHECK(board.get(5, 6) == BLACK_PAWN);
+	CHECK(board.get(6, 6) == BLACK_PAWN);
+	CHECK(board.get(7, 6) == BLACK_PAWN);
+
+	CHECK(board.get(0, 7) == BLACK_ROOK);
+	CHECK(board.get(1, 7) == BLACK_KNIGHT);
+	CHECK(board.get(2, 7) == BLACK_BISHOP);
+	CHECK(board.get(3, 7) == BLACK_QUEEN);
+	CHECK(board.get(4, 7) == BLACK_KING);
+	CHECK(board.get(5, 7) == BLACK_BISHOP);
+	CHECK(board.get(6, 7) == BLACK_KNIGHT);
+	CHECK(board.get(7, 7) == BLACK_ROOK);
+
+	CHECK(board.sideToMove() == WHITE);
+
+	CHECK(board.whiteCastleKing == true);
+	CHECK(board.whiteCastleQueen == true);
+	CHECK(board.blackCastleKing == true);
+	CHECK(board.blackCastleQueen == true);
+
+	board.setupBoardFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1");
+
+	CHECK(board.whiteCastleKing == false);
+	CHECK(board.whiteCastleQueen == false);
+	CHECK(board.blackCastleKing == false);
+	CHECK(board.blackCastleQueen == false);
+
+}
+
+TEST ( WhiteCasteling )
+{
+	ChessBoard board;
+	board.initializeGame();
+	board.performMove(Move(Position(4, 1), Position(4, 3)));
+	board.performMove(Move(Position(4, 6), Position(4, 4)));
+	board.performMove(Move(Position(5, 0), Position(2, 3)));
+	board.performMove(Move(Position(5, 7), Position(2, 4)));
+	board.performMove(Move(Position(6, 0), Position(5, 2)));
+	board.performMove(Move(Position(6, 7), Position(5, 5)));
+
+	std::vector<Move> moves;
+	moves = board.possibleMoves();
+
+	CHECK(moves.size() == 33);
+
+	board.performMove(Move(Position(4, 0), Position(6, 0)));
+	CHECK(board.get(6, 0) == WHITE_KING);
+	CHECK(board.get(5, 0) == WHITE_ROOK);
+	CHECK(board.get(4, 0) == NO_PIECE);
+	CHECK(board.get(7, 0) == NO_PIECE);
+
 }

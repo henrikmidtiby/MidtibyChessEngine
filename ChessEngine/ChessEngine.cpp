@@ -66,7 +66,7 @@ void echoToGuiAndFile(FILE** fh, char* buffer)
 }
 
 
-int xboardInterface()
+int uciInterface()
 {
 	FILE* fileHandle;
 	fopen_s(&fileHandle, "inputFromGui.txt", "w");
@@ -79,7 +79,7 @@ int xboardInterface()
 
 	while(true)
 	{
-		// Get command from commandline
+		// Get command from command line
 		char buffer[10000];
 		std::cin.getline(buffer,10000);
 
@@ -104,7 +104,7 @@ int xboardInterface()
 			{
 				board.initializeGame();
 				int index = strlen("position startpos moves ");
-				while(index < strlen(buffer))
+				while(index < (int) strlen(buffer))
 				{
 //					fprintf_s(fileHandle, "info \"%s\"\n", &buffer[index]);
 					char tempBuffer[6];
@@ -121,6 +121,8 @@ int xboardInterface()
 //					fprintf_s(fileHandle, "info \"string: \'%c%c%c%c\'\"\n", tempBuffer[0], tempBuffer[1], tempBuffer[2], tempBuffer[3]);
 					if(recognizeAsMove(tempBuffer, &mov))
 					{
+						fprintf_s(fileHandle, "info \"%s\"\n", mov.toString().c_str());
+
 						moves.push_back(mov);
 						board.performMove(mov);
 					}
@@ -133,35 +135,16 @@ int xboardInterface()
 		{
 			return 0;
 		}
-		if(strcmp(buffer, "new") == 0)
-		{
-			board.initializeGame();
-			continue;
-		}
-		if(strcmp(buffer, "print") == 0)
-		{
-			board.printBoard();
-			continue;
-		}
-		if(strcmp(buffer, "undo") == 0)
-		{
-			moves.pop_back();
-			board.initializeGame();
-			for(int i = 0; i < moves.size(); i++)
-			{
-				board.performMove(moves.at(i));
-			}
-			continue;
-		}
 		if(strncmp(buffer, "go", 2) == 0)
 		{
+			int depth = 4;
+			int nodeCount = 0;
 			std::vector<Move> currentMoves = board.legalMoves();
-			Evaluation eval = board.dynamicEvaluation(3);
-			//printf("Performing move: %s (%s)\n\n", currentMoves.at(board.bestMove).toString().c_str(), eval.toString().c_str());
+			Evaluation eval = board.dynamicEvaluation(depth, &nodeCount);
 			char temp[100];
-			sprintf_s(temp, 100, "info depth 4\n");
+			sprintf_s(temp, 100, "info depth %d\n", depth);
 			echoToGuiAndFile(&fileHandle, temp);
-			sprintf_s(temp, 100, "info score cp %d\n", (int) (100*eval.getBoardEvaluation()));
+			sprintf_s(temp, 100, "info nodes %d score cp %d\n", nodeCount, (int) (100*eval.getBoardEvaluation()));
 			echoToGuiAndFile(&fileHandle, temp);
 			sprintf_s(temp, 100, "bestmove %s\n", currentMoves.at(board.bestMove).toString().c_str());
 			echoToGuiAndFile(&fileHandle, temp);
@@ -170,25 +153,9 @@ int xboardInterface()
 
 			continue;
 		}
-		if(recognizeAsMove(buffer, &mov))
-		{
-			//printf("Move recognized: %s\n", mov.toString().c_str());
-			moves.push_back(mov);
-			board.performMove(mov);
-
-			std::vector<Move> currentMoves = board.legalMoves();
-			Evaluation eval = board.dynamicEvaluation(2);
-			//printf("Performing move: %s (%s)\n\n", currentMoves.at(board.bestMove).toString().c_str(), eval.toString().c_str());
-			printf("move %s\n", currentMoves.at(board.bestMove).toString().c_str());
-			board.performBestMove();
-			moves.push_back(currentMoves.at(board.bestMove));
-
-			continue;
-		}
 
 		// Command not recognized, it may be a move ...
-		std::cout << buffer << std::endl;
-
+		printf("command not recognized: %s\n", buffer);
 	}
 
 	return 0;
@@ -208,78 +175,12 @@ int main(int argc, char* argv[])
 
 		if(strcmp(argv[1], "xboard") == 0)
 		{
-			return xboardInterface();
+			return uciInterface();
 		}
 	}
 
-	return xboardInterface();
+	return uciInterface();
 
-
-	ChessBoard board;
-	board.initializeGame();
-
-	if(false)
-	{
-		board.clearBoard();
-		board.placePiece(Position(3, 3), WHITE_KING);
-		board.placePiece(Position(3, 6), WHITE_PAWN);
-		board.placePiece(Position(7, 3), BLACK_KING);
-	}
-
-
-	int counter = 0;
-
-	// Shortest possible mate 13, 11, 17, 14
-
-	for(int i = 0; i < 150; i++)
-	{
-		//board.printBoard();
-		std::vector<Move> moves = board.legalMoves();
-		if(moves.size() == 0)
-		{
-			printf("Black won\n");
-			return 0;
-		}
-		Evaluation eval = board.dynamicEvaluation(3);
-		printf("Performing move: %s (%s)\n\n", moves.at(board.bestMove).toString().c_str(), eval.toString().c_str());
-		board.performBestMove();
-
-		if(true)
-		{
-			board.printBoard();
-			std::vector<Move> moves = board.legalMoves();
-			board.printMovesFromList(moves);
-			std::cout << "Enter move number: ";
-			std::cin >> counter;
-			if(counter <= (int) moves.size())
-				board.performMove(moves.at(counter - 1));
-		}
-		else
-		{
-			//board.printBoard();
-			moves = board.legalMoves();
-			if(moves.size() == 0)
-			{
-				printf("White won\n");
-				return 0;
-			}
-			eval = board.dynamicEvaluation(3);
-			printf("Performing move: %s (%s)\n\n", moves.at(board.bestMove).toString().c_str(), eval.toString().c_str());
-			board.performBestMove();
-		}
-	}
-	return 0;
-
-	while(true)
-	{
-		board.printBoard();
-		std::vector<Move> moves = board.legalMoves();
-		board.printMovesFromList(moves);
-		std::cout << "Enter move number: ";
-		std::cin >> counter;
-		if(counter <= (int) moves.size())
-			board.performMove(moves.at(counter - 1));
-	}
 	return 0;
 }
 
