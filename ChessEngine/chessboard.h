@@ -7,9 +7,9 @@
 #include "move.h"
 #include "evaluation.h"
 
-enum Pieces {NO_PIECE, OUTSIDE_BOARD,
-	WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, 
+enum Pieces {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, 
 	WHITE_QUEEN, WHITE_KING, WHITE_PAWN, 
+	NO_PIECE, OUTSIDE_BOARD,
 	BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, 
 	BLACK_BISHOP, BLACK_QUEEN, BLACK_KING};
 
@@ -21,7 +21,7 @@ private:
 	Side toMove;
 
 public:
-	int bestMove;
+	Move bestMove;
 	bool whiteCastleKing;
 	bool whiteCastleQueen;
 	bool blackCastleKing;
@@ -81,9 +81,12 @@ public:
 	Evaluation staticEvaluation();
 	double pieceValue(Pieces piece);
 	double basicMaterialCount();
-	Evaluation dynamicEvaluation(int searchDepth, int * nodeCount);
+	Evaluation dynamicEvaluation(int searchDepth, int * nodeCount, std::vector<Move> &pv);
+	Evaluation dynamicEvaluationWrapper(int searchDepth, int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv);
+	Evaluation quiscenceSearch(int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv);
 	void whiteCastling( std::vector<Move> &moves );
 	void blackCastling( std::vector<Move> &moves );
+	void orderMoves( std::vector<Move> &moves );
 };
 
 

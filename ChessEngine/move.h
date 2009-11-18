@@ -13,6 +13,7 @@ public:
 	Position from;
 	Position to;
 	MoveSpecial notice;
+	Move() {from.column = 0; from.row = 0; to.column = 0; to.row = 0; notice = STANDARD_MOVE;};
 	Move(Position fromPos, Position toPos) {from = fromPos; to = toPos; notice = STANDARD_MOVE;};
 	Move(Position fromPos, Position toPos, MoveSpecial note) {from = fromPos; to = toPos; notice = note;};
 	Move(int cf, int rf, int ct, int rt) 

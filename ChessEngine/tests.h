@@ -955,9 +955,10 @@ TEST ( FindMateInZeroHalfMoves )
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(4, 7), BLACK_KING);
 	int nodeCount = 0;
-	Evaluation eval = board.dynamicEvaluation(0, &nodeCount);
+	std::vector<Move> pv;
+	Evaluation eval = board.dynamicEvaluation(0, &nodeCount, pv);
 	CHECK(eval == Evaluation(0, 0, WHITE_WINS));
-	eval = board.dynamicEvaluation(1, &nodeCount);
+	eval = board.dynamicEvaluation(1, &nodeCount, pv);
 	CHECK(eval == Evaluation(0, 0, WHITE_WINS));
 }
 
@@ -969,7 +970,8 @@ TEST ( FindMateInOneHalfMove )
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(4, 7), BLACK_KING);
 	int nodeCount = 0;
-	Evaluation eval = board.dynamicEvaluation(1, &nodeCount);
+	std::vector<Move> pv;
+	Evaluation eval = board.dynamicEvaluation(1, &nodeCount, pv);
 	CHECK(eval == Evaluation(0, 1, WHITE_WINS));
 }
 
@@ -981,7 +983,8 @@ TEST ( FindMateInThreeHalfMove )
 	board.placePiece(Position(4, 5), WHITE_KING);
 	board.placePiece(Position(3, 7), BLACK_KING);
 	int nodeCount = 0;
-	Evaluation eval = board.dynamicEvaluation(3, &nodeCount);
+	std::vector<Move> pv;
+	Evaluation eval = board.dynamicEvaluation(3, &nodeCount, pv);
 	CHECK(eval == Evaluation(0, 3, WHITE_WINS));
 }
 

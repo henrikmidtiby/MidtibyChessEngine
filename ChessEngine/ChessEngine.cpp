@@ -121,7 +121,7 @@ int uciInterface()
 //					fprintf_s(fileHandle, "info \"string: \'%c%c%c%c\'\"\n", tempBuffer[0], tempBuffer[1], tempBuffer[2], tempBuffer[3]);
 					if(recognizeAsMove(tempBuffer, &mov))
 					{
-						fprintf_s(fileHandle, "info \"%s\"\n", mov.toString().c_str());
+						//fprintf_s(fileHandle, "info \"%s\"\n", mov.toString().c_str());
 
 						moves.push_back(mov);
 						board.performMove(mov);
@@ -137,19 +137,29 @@ int uciInterface()
 		}
 		if(strncmp(buffer, "go", 2) == 0)
 		{
-			int depth = 4;
+			int depth = 5;
 			int nodeCount = 0;
+			std::vector<Move> pv;
 			std::vector<Move> currentMoves = board.legalMoves();
-			Evaluation eval = board.dynamicEvaluation(depth, &nodeCount);
+			Evaluation eval = board.dynamicEvaluation(depth, &nodeCount, pv);
 			char temp[100];
 			sprintf_s(temp, 100, "info depth %d\n", depth);
 			echoToGuiAndFile(&fileHandle, temp);
-			sprintf_s(temp, 100, "info nodes %d score cp %d\n", nodeCount, (int) (100*eval.getBoardEvaluation()));
+			std::string pvString;
+			for(int i = 0; i < pv.size(); i++)
+			{
+				pvString = pvString + " " + pv.at(i).toString();
+				fprintf(fileHandle, "temp: %s\n", pvString.c_str());
+			}
+			if(board.sideToMove() == WHITE)
+				sprintf_s(temp, 100, "info nodes %d score cp %d pv %s\n", nodeCount, (int) (100*eval.getBoardEvaluation()), pvString.c_str());
+			else
+				sprintf_s(temp, 100, "info nodes %d score cp %d pv %s\n", nodeCount, (int) (-100*eval.getBoardEvaluation()), pvString.c_str());
 			echoToGuiAndFile(&fileHandle, temp);
-			sprintf_s(temp, 100, "bestmove %s\n", currentMoves.at(board.bestMove).toString().c_str());
+			sprintf_s(temp, 100, "bestmove %s\n", board.bestMove.toString().c_str());
 			echoToGuiAndFile(&fileHandle, temp);
 			board.performBestMove();
-			moves.push_back(currentMoves.at(board.bestMove));
+			moves.push_back(board.bestMove);
 
 			continue;
 		}

@@ -98,6 +98,17 @@ public:
 		}
 		return std::string(buffer);
 	}
+	Evaluation negate()
+	{
+		Evaluation temp(*this);
+		temp.boardEvaluation *= -1;
+		if(temp.mateState == WHITE_WINS)
+			temp.mateState = BLACK_WINS;
+		else if(temp.mateState == BLACK_WINS)
+			temp.mateState = WHITE_WINS;
+		return temp;
+	}
+
 };
 
 #endif

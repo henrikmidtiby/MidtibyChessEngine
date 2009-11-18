@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "chessboard.h"
 #include <assert.h>
+#include <algorithm>
 #include <string>
 
 int kingMovesColumn[8] = { 0, -1, -1, -1,  0,  1,  1,  1};
@@ -22,8 +23,7 @@ ChessBoard::ChessBoard()
 	whiteCastleQueen = true;
 	blackCastleKing = true;
 	blackCastleQueen = true;
-
-	bestMove = 0;
+	bestMove = Move(0, 0, 0, 0, STANDARD_MOVE);
 }
 
 void ChessBoard::initializeGame()
@@ -509,6 +509,13 @@ std::vector<Move> ChessBoard::possibleWhiteMoves()
 
 bool ChessBoard::isBlackPiece(Pieces piece)
 {
+	
+	if(piece > OUTSIDE_BOARD)
+		return true;
+	else
+		return false;
+	
+
 	if(piece == BLACK_PAWN)
 		return true;
 	if(piece == BLACK_ROOK)
@@ -941,10 +948,15 @@ double ChessBoard::pieceValue(Pieces piece)
 double ChessBoard::basicMaterialCount()
 {
 	double material = 0;
+	double totalmaterial = 0;
 	for(int column = 0; column < 8; column++)
 		for(int row = 0; row < 8; row++)
-			material += pieceValue(get(column, row));
-	return material;
+		{	
+			double temp = pieceValue(get(column, row));
+			material += temp;
+			totalmaterial += abs(temp);
+		}
+	return material * ( 1 + 10 / totalmaterial);
 }
 
 Evaluation ChessBoard::staticEvaluation()
@@ -959,21 +971,28 @@ Evaluation ChessBoard::staticEvaluation()
 
 	double evaluation = 0;
 	evaluation += basicMaterialCount();
-	evaluation += 0.0001 * rand() / RAND_MAX;
+	// evaluation += 0.001 * rand() / RAND_MAX;
+
 
 	return Evaluation(evaluation);
 }
 
-Evaluation ChessBoard::dynamicEvaluation(int searchDepth, int * nodeCount)
+Evaluation ChessBoard::dynamicEvaluation(int searchDepth, int * nodeCount, std::vector<Move> &pv)
+{
+	return dynamicEvaluationWrapper(searchDepth, nodeCount, Evaluation(0, 0, BLACK_WINS), Evaluation(0, 0, WHITE_WINS), pv);
+}
+
+Evaluation ChessBoard::dynamicEvaluationWrapper(int searchDepth, int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv)
 {
 	(*nodeCount)++;
 
-	if(searchDepth == 0)
-		return staticEvaluation();
+	if(searchDepth <= 1 )
+		return quiscenceSearch(nodeCount, alpha, beta, pv);
 
 	std::vector<Move> moves = legalMoves();
 	if (moves.empty())
 	{
+		pv.clear();
 		if(toMove == WHITE)
 		{
 			if(isWhiteKingUnderAttack())
@@ -998,47 +1017,182 @@ Evaluation ChessBoard::dynamicEvaluation(int searchDepth, int * nodeCount)
 		}
 	}
 
+	orderMoves(moves);
 
-	ChessBoard tempBoard1(*this);
-	assert(moves.size() > 0);
-	tempBoard1.performMove(moves.at(0));
-	Evaluation currentBest = tempBoard1.dynamicEvaluation(searchDepth - 1, nodeCount);
+	Evaluation currentBest;
+	if(toMove == WHITE)
+		currentBest = alpha;
+	else
+		currentBest = beta;
+
 	int currentBestMove = 0;
-	for(int i = 1; i < moves.size(); i++)
+	std::vector<Move> currentBestPV;
+	for(int i = 0; i < moves.size(); i++)
 	{
-		if(currentBestMove > i)
-			assert(currentBestMove < i);
 		ChessBoard tempBoard(*this);
 		assert(moves.size() > i);
 		tempBoard.performMove(moves.at(i));
-		Evaluation eval = tempBoard.dynamicEvaluation(searchDepth - 1, nodeCount);
+		std::vector<Move> tempPv;
+		Evaluation eval = tempBoard.dynamicEvaluationWrapper(searchDepth - 1, nodeCount, alpha, beta, tempPv);
 		if(toMove == WHITE)
 		{
 			if(eval > currentBest)
 			{
+				currentBestPV.clear();
+				currentBestPV.push_back(moves.at(i));
+				currentBestPV.insert(currentBestPV.end(), tempPv.begin(), tempPv.end());
 				currentBest = eval;
 				currentBestMove = i;
+				if(eval > alpha)
+				{
+					alpha = eval;
+				}
+				if(!(alpha < beta))
+				{
+					break;
+				}
 			}
 		}
 		else
 		{
 			if(eval < currentBest)
 			{
+				currentBestPV.clear();
+				currentBestPV.push_back(moves.at(i));
+				currentBestPV.insert(currentBestPV.end(), tempPv.begin(), tempPv.end());
 				currentBest = eval;
 				currentBestMove = i;
+				if(eval < beta)
+				{
+					beta = eval;
+				}
+				if(!(alpha < beta))
+				{
+					break;
+				}
 			}
 		}
 	}
 
-	bestMove = currentBestMove;
+	pv = currentBestPV;
+	bestMove = moves.at(currentBestMove);
+	// Trouble with mate scoring
 	currentBest.increaseMovesToMateByOne();
 	return currentBest;
 }
 
+
+Evaluation ChessBoard::quiscenceSearch(int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv)
+{
+	(*nodeCount)++;
+
+	std::vector<Move> moves = legalMoves();
+	if (moves.empty())
+	{
+		pv.clear();
+		if(toMove == WHITE)
+		{
+			if(isWhiteKingUnderAttack())
+			{
+				return Evaluation(0, 0, BLACK_WINS);
+			}
+			else
+			{
+				return Evaluation(0);
+			}
+		}
+		else
+		{
+			if(isBlackKingUnderAttack())
+			{
+				return Evaluation(0, 0, WHITE_WINS);
+			}
+			else
+			{
+				return Evaluation(0);
+			}
+		}
+	}
+
+	orderMoves(moves);
+	::std::reverse(moves.begin(), moves.end());
+
+	Evaluation currentBest;
+	if(toMove == WHITE)
+		currentBest = alpha;
+	else
+		currentBest = beta;
+
+	int currentBestMove = 0;
+	std::vector<Move> currentBestPV;
+	for(int i = 0; i < moves.size(); i++)
+	{
+		ChessBoard tempBoard(*this);
+		assert(moves.size() > i);
+		std::vector<Move> tempPv;
+		Evaluation eval;
+		if(tempBoard.get(moves.at(i).to.column, moves.at(i).to.row) != NO_PIECE)
+		{
+			tempBoard.performMove(moves.at(i));
+			eval = tempBoard.quiscenceSearch(nodeCount, alpha, beta, tempPv);
+		}
+		else
+		{
+			tempBoard.performMove(moves.at(i));
+			eval = tempBoard.staticEvaluation();
+		}
+		if(toMove == WHITE)
+		{
+			if(eval > currentBest)
+			{
+				currentBestPV.clear();
+				currentBestPV.push_back(moves.at(i));
+				currentBestPV.insert(currentBestPV.end(), tempPv.begin(), tempPv.end());
+				currentBest = eval;
+				currentBestMove = i;
+				if(eval > alpha)
+				{
+					alpha = eval;
+				}
+				if(!(alpha < beta))
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			if(eval < currentBest)
+			{
+				currentBestPV.clear();
+				currentBestPV.push_back(moves.at(i));
+				currentBestPV.insert(currentBestPV.end(), tempPv.begin(), tempPv.end());
+				currentBest = eval;
+				currentBestMove = i;
+				if(eval < beta)
+				{
+					beta = eval;
+				}
+				if(!(alpha < beta))
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	pv = currentBestPV;
+	bestMove = moves.at(currentBestMove);
+	// Trouble with mate scoring
+	currentBest.increaseMovesToMateByOne();
+	return currentBest;
+}
+
+
+
 void ChessBoard::performBestMove()
 {
-	std::vector<Move> moves = legalMoves();
-	performMove(moves.at(bestMove));
+	performMove(bestMove);
 }
 
 void ChessBoard::setupBoardFromFen(char* inputString)
@@ -1203,4 +1357,25 @@ void ChessBoard::blackCastling( std::vector<Move> &moves )
 			moves.push_back(Move(Position(4, 7), Position(2, 7), CASTLE_QUEEN));
 		}
 	}
+}
+
+void ChessBoard::orderMoves( std::vector<Move> &moves )
+{
+	// Order moves such that captures are located first
+
+	std::vector<Move> captures;
+	std::vector<Move> nonCaptures;
+
+	for(int i = 0; i < moves.size(); i++)
+	{
+		Move mov = moves.at(i);
+		if(board[mov.to.column][mov.to.row] != NO_PIECE)
+			captures.push_back(mov);
+		else
+			nonCaptures.push_back(mov);
+	}
+
+	moves.clear();
+	moves.insert(moves.end(), captures.begin(), captures.end());
+	moves.insert(moves.end(), nonCaptures.begin(), nonCaptures.end());
 }
