@@ -87,6 +87,8 @@ public:
 	void whiteCastling( std::vector<Move> &moves );
 	void blackCastling( std::vector<Move> &moves );
 	void orderMoves( std::vector<Move> &moves );
+	double piecePositionBonus(Pieces piece, int column, int row);
+	double positionBonusses();
 };
 
 

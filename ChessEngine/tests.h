@@ -925,18 +925,18 @@ TEST ( DetectMateUsingTheEvaluationFunction )
 TEST ( PieceValues )
 {
 	ChessBoard board;
-	CHECK(board.pieceValue(WHITE_KING) == 100);
-	CHECK(board.pieceValue(BLACK_KING) == -100);
-	CHECK(board.pieceValue(WHITE_QUEEN) == 9);
-	CHECK(board.pieceValue(BLACK_QUEEN) == -9);
-	CHECK(board.pieceValue(WHITE_ROOK) == 5);
-	CHECK(board.pieceValue(BLACK_ROOK) == -5);
-	CHECK(board.pieceValue(WHITE_KNIGHT) == 3);
-	CHECK(board.pieceValue(BLACK_KNIGHT) == -3);
-	CHECK(board.pieceValue(WHITE_BISHOP) == 3);
-	CHECK(board.pieceValue(BLACK_BISHOP) == -3);
-	CHECK(board.pieceValue(WHITE_PAWN) == 1);
-	CHECK(board.pieceValue(BLACK_PAWN) == -1);
+	CHECK(board.pieceValue(WHITE_KING) == 10000);
+	CHECK(board.pieceValue(BLACK_KING) == -10000);
+	CHECK(board.pieceValue(WHITE_QUEEN) == 900);
+	CHECK(board.pieceValue(BLACK_QUEEN) == -900);
+	CHECK(board.pieceValue(WHITE_ROOK) == 500);
+	CHECK(board.pieceValue(BLACK_ROOK) == -500);
+	CHECK(board.pieceValue(WHITE_KNIGHT) == 300);
+	CHECK(board.pieceValue(BLACK_KNIGHT) == -300);
+	CHECK(board.pieceValue(WHITE_BISHOP) == 300);
+	CHECK(board.pieceValue(BLACK_BISHOP) == -300);
+	CHECK(board.pieceValue(WHITE_PAWN) == 100);
+	CHECK(board.pieceValue(BLACK_PAWN) == -100);
 }
 
 TEST ( MaterialBalanceAtInitialPosition )

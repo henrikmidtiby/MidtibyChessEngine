@@ -137,25 +137,30 @@ int uciInterface()
 		}
 		if(strncmp(buffer, "go", 2) == 0)
 		{
-			int depth = 5;
+			clock_t initialTime = clock();
+			int maxDepth = 4;
 			int nodeCount = 0;
-			std::vector<Move> pv;
-			std::vector<Move> currentMoves = board.legalMoves();
-			Evaluation eval = board.dynamicEvaluation(depth, &nodeCount, pv);
 			char temp[100];
-			sprintf_s(temp, 100, "info depth %d\n", depth);
-			echoToGuiAndFile(&fileHandle, temp);
-			std::string pvString;
-			for(int i = 0; i < pv.size(); i++)
+			std::vector<Move> pv;
+			for(int depth = 0; depth < maxDepth; depth++)
 			{
-				pvString = pvString + " " + pv.at(i).toString();
-				fprintf(fileHandle, "temp: %s\n", pvString.c_str());
+				Evaluation eval = board.dynamicEvaluation(depth, &nodeCount, pv);
+				//sprintf_s(temp, 100, "info depth %d\n", depth);
+				//echoToGuiAndFile(&fileHandle, temp);
+				std::string pvString = "";
+				for(int i = 0; i < pv.size(); i++)
+				{
+					pvString = pvString + " " + pv.at(i).toString();
+				}
+				int usedTime = (1000. * (clock() - initialTime)) / CLOCKS_PER_SEC;
+
+				if(board.sideToMove() == WHITE)
+					sprintf_s(temp, 100, "info depth %d score cp %d time %d nodes %d pv %s\n", depth, (int) (eval.getBoardEvaluation()), usedTime, nodeCount, pvString.c_str());
+				else
+					sprintf_s(temp, 100, "info depth %d score cp %d time %d nodes %d pv %s\n", depth, (int) (-eval.getBoardEvaluation()), usedTime, nodeCount, pvString.c_str());
+				echoToGuiAndFile(&fileHandle, temp);
 			}
-			if(board.sideToMove() == WHITE)
-				sprintf_s(temp, 100, "info nodes %d score cp %d pv %s\n", nodeCount, (int) (100*eval.getBoardEvaluation()), pvString.c_str());
-			else
-				sprintf_s(temp, 100, "info nodes %d score cp %d pv %s\n", nodeCount, (int) (-100*eval.getBoardEvaluation()), pvString.c_str());
-			echoToGuiAndFile(&fileHandle, temp);
+
 			sprintf_s(temp, 100, "bestmove %s\n", board.bestMove.toString().c_str());
 			echoToGuiAndFile(&fileHandle, temp);
 			board.performBestMove();

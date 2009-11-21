@@ -514,40 +514,14 @@ bool ChessBoard::isBlackPiece(Pieces piece)
 		return true;
 	else
 		return false;
-	
-
-	if(piece == BLACK_PAWN)
-		return true;
-	if(piece == BLACK_ROOK)
-		return true;
-	if(piece == BLACK_KNIGHT)
-		return true;
-	if(piece == BLACK_BISHOP)
-		return true;
-	if(piece == BLACK_QUEEN)
-		return true;
-	if(piece == BLACK_KING)
-		return true;
-
-	return false;
 }
 
 bool ChessBoard::isWhitePiece(Pieces piece)
 {
-	if(piece == WHITE_PAWN)
+	if(piece < NO_PIECE)
 		return true;
-	if(piece == WHITE_ROOK)
-		return true;
-	if(piece == WHITE_KNIGHT)
-		return true;
-	if(piece == WHITE_BISHOP)
-		return true;
-	if(piece == WHITE_QUEEN)
-		return true;
-	if(piece == WHITE_KING)
-		return true;
-
-	return false;
+	else
+		return false;
 }
 
 bool ChessBoard::isWhiteOrEmpty(Pieces piece)
@@ -584,7 +558,7 @@ bool ChessBoard::isOutsideBoard(Position pos)
 	return false;
 }
 
-void ChessBoard::moveWhitePieceInLine( int column, int row, int dcolumn, int drow, std::vector<Move> &moves )
+inline void ChessBoard::moveWhitePieceInLine( int column, int row, int dcolumn, int drow, std::vector<Move> &moves )
 {
 	for(int i = 1; i < 8; i++)
 	{	
@@ -597,7 +571,7 @@ void ChessBoard::moveWhitePieceInLine( int column, int row, int dcolumn, int dro
 	}
 }
 
-void ChessBoard::moveLikeWhiteRook( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeWhiteRook( int column, int row, std::vector<Move> &moves )
 {
 	moveWhitePieceInLine(column, row,  0,  1, moves);
 	moveWhitePieceInLine(column, row,  0, -1, moves);
@@ -605,7 +579,7 @@ void ChessBoard::moveLikeWhiteRook( int column, int row, std::vector<Move> &move
 	moveWhitePieceInLine(column, row, -1,  0, moves);
 }
 
-void ChessBoard::moveLikeWhiteBishop( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeWhiteBishop( int column, int row, std::vector<Move> &moves )
 {
 	moveWhitePieceInLine(column, row,  1,  1, moves);
 	moveWhitePieceInLine(column, row,  1, -1, moves);
@@ -613,7 +587,7 @@ void ChessBoard::moveLikeWhiteBishop( int column, int row, std::vector<Move> &mo
 	moveWhitePieceInLine(column, row, -1, -1, moves);
 }
 
-void ChessBoard::promotePawnMove(Position from, Position to, std::vector<Move> &moves)
+inline void ChessBoard::promotePawnMove(Position from, Position to, std::vector<Move> &moves)
 {
 	moves.push_back(Move(from, to, PROMOTE_TO_QUEEN));
 	moves.push_back(Move(from, to, PROMOTE_TO_ROOK));
@@ -654,7 +628,7 @@ void ChessBoard::moveLikeWhitePawn( int column, int row, std::vector<Move> &move
 	}
 }
 
-void ChessBoard::moveLikeWhiteKing( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeWhiteKing( int column, int row, std::vector<Move> &moves )
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -663,7 +637,7 @@ void ChessBoard::moveLikeWhiteKing( int column, int row, std::vector<Move> &move
 	}
 }
 
-void ChessBoard::moveLikeWhiteKnight( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeWhiteKnight( int column, int row, std::vector<Move> &moves )
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -711,7 +685,7 @@ std::vector<Move> ChessBoard::possibleBlackMoves()
 	return moves;
 }
 
-void ChessBoard::moveLikeBlackKnight( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeBlackKnight( int column, int row, std::vector<Move> &moves )
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -720,7 +694,7 @@ void ChessBoard::moveLikeBlackKnight( int column, int row, std::vector<Move> &mo
 	}
 }
 
-void ChessBoard::moveLikeBlackPawn( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeBlackPawn( int column, int row, std::vector<Move> &moves )
 {
 	if(row == 1)
 	{
@@ -746,7 +720,7 @@ void ChessBoard::moveLikeBlackPawn( int column, int row, std::vector<Move> &move
 	}
 }
 
-void ChessBoard::moveLikeBlackKing( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeBlackKing( int column, int row, std::vector<Move> &moves )
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -755,7 +729,7 @@ void ChessBoard::moveLikeBlackKing( int column, int row, std::vector<Move> &move
 	}
 }
 
-void ChessBoard::moveBlackPieceInLine( int column, int row, int dcolumn, int drow, std::vector<Move> &moves )
+inline void ChessBoard::moveBlackPieceInLine( int column, int row, int dcolumn, int drow, std::vector<Move> &moves )
 {
 	for(int i = 1; i < 8; i++)
 	{	
@@ -768,7 +742,7 @@ void ChessBoard::moveBlackPieceInLine( int column, int row, int dcolumn, int dro
 	}
 }
 
-void ChessBoard::moveLikeBlackRook( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeBlackRook( int column, int row, std::vector<Move> &moves )
 {
 	moveBlackPieceInLine(column, row,  0,  1, moves);
 	moveBlackPieceInLine(column, row,  0, -1, moves);
@@ -776,7 +750,7 @@ void ChessBoard::moveLikeBlackRook( int column, int row, std::vector<Move> &move
 	moveBlackPieceInLine(column, row, -1,  0, moves);
 }
 
-void ChessBoard::moveLikeBlackBishop( int column, int row, std::vector<Move> &moves )
+inline void ChessBoard::moveLikeBlackBishop( int column, int row, std::vector<Move> &moves )
 {
 	moveBlackPieceInLine(column, row,  1,  1, moves);
 	moveBlackPieceInLine(column, row,  1, -1, moves);
@@ -930,18 +904,18 @@ bool ChessBoard::isThereLegalMovesAvailable()
 
 double ChessBoard::pieceValue(Pieces piece)
 {
-	if(piece == WHITE_KING) return  100;
-	if(piece == BLACK_KING) return -100;
-	if(piece == WHITE_QUEEN) return  9;
-	if(piece == BLACK_QUEEN) return -9;
-	if(piece == WHITE_ROOK) return  5;
-	if(piece == BLACK_ROOK) return -5;
-	if(piece == WHITE_KNIGHT) return  3;
-	if(piece == BLACK_KNIGHT) return -3;
-	if(piece == WHITE_BISHOP) return  3;
-	if(piece == BLACK_BISHOP) return -3;
-	if(piece == WHITE_PAWN) return  1;
-	if(piece == BLACK_PAWN) return -1;
+	if(piece == WHITE_KING) return  10000;
+	if(piece == BLACK_KING) return -10000;
+	if(piece == WHITE_QUEEN) return  900;
+	if(piece == BLACK_QUEEN) return -900;
+	if(piece == WHITE_ROOK) return  500;
+	if(piece == BLACK_ROOK) return -500;
+	if(piece == WHITE_KNIGHT) return  300;
+	if(piece == BLACK_KNIGHT) return -300;
+	if(piece == WHITE_BISHOP) return  300;
+	if(piece == BLACK_BISHOP) return -300;
+	if(piece == WHITE_PAWN) return  100;
+	if(piece == BLACK_PAWN) return -100;
 	return 0;
 }
 
@@ -959,6 +933,35 @@ double ChessBoard::basicMaterialCount()
 	return material * ( 1 + 10 / totalmaterial);
 }
 
+
+double ChessBoard::piecePositionBonus(Pieces piece, int column, int row)
+{
+	if(piece == WHITE_BISHOP || piece == WHITE_KNIGHT)
+	{
+		return 10 - 2*abs(column - 3.5) - 2*abs(row - 3.5);
+	}
+	if(piece == BLACK_BISHOP || piece == BLACK_KNIGHT)
+	{
+		return -1*(10 - 2*abs(column - 3.5) - 2*abs(row - 3.5));
+	}
+	return 0;
+}
+
+double ChessBoard::positionBonusses()
+{
+	double bonus = 0;
+	for(int column = 0; column < 8; column++)
+	{
+		for(int row = 0; row < 8; row++)
+		{	
+			double temp = piecePositionBonus(get(column, row), column, row);
+			bonus += temp;
+		}
+	}
+	return bonus;
+}
+
+
 Evaluation ChessBoard::staticEvaluation()
 {
 	// Detect mate
@@ -971,7 +974,8 @@ Evaluation ChessBoard::staticEvaluation()
 
 	double evaluation = 0;
 	evaluation += basicMaterialCount();
-	// evaluation += 0.001 * rand() / RAND_MAX;
+	evaluation += positionBonusses();
+	evaluation += 0.001 * rand() / RAND_MAX;
 
 
 	return Evaluation(evaluation);
