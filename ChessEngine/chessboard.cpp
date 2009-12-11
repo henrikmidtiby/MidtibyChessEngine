@@ -4,6 +4,34 @@
 #include <algorithm>
 #include <string>
 
+#define max( a, b ) ( ((a) > (b)) ? (a) : (b) )
+#define min( a, b ) ( ((a) < (b)) ? (a) : (b) )
+
+
+// Stolen from tscp181
+int pawn_pcsq[64] = {
+	  0,   0,   0,   0,   0,   0,   0,   0,
+	  5,  10,  15,  20,  20,  15,  10,   5,
+	  4,   8,  12,  16,  16,  12,   8,   4,
+	  3,   6,   9,  12,  12,   9,   6,   3,
+	  2,   4,   6,   8,   8,   6,   4,   2,
+	  1,   2,   3, -10, -10,   3,   2,   1,
+	  0,   0,   0, -40, -40,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0
+};
+
+int king_pcsq[64] = {
+	-40, -40, -40, -40, -40, -40, -40, -40,
+	-40, -40, -40, -40, -40, -40, -40, -40,
+	-40, -40, -40, -40, -40, -40, -40, -40,
+	-40, -40, -40, -40, -40, -40, -40, -40,
+	-40, -40, -40, -40, -40, -40, -40, -40,
+	-40, -40, -40, -40, -40, -40, -40, -40,
+	-20, -20, -20, -20, -20, -20, -20, -20,
+	  0,  20,  40, -20,   0, -20,  40,  20
+};
+
+
 int kingMovesColumn[8] = { 0, -1, -1, -1,  0,  1,  1,  1};
 int kingMovesRow[8]    = { 1,  1,  0, -1, -1, -1,  0,  1};
 
@@ -904,8 +932,8 @@ bool ChessBoard::isThereLegalMovesAvailable()
 
 double ChessBoard::pieceValue(Pieces piece)
 {
-	if(piece == WHITE_KING) return  10000;
-	if(piece == BLACK_KING) return -10000;
+	if(piece == WHITE_KING) return  0;
+	if(piece == BLACK_KING) return  0;
 	if(piece == WHITE_QUEEN) return  900;
 	if(piece == BLACK_QUEEN) return -900;
 	if(piece == WHITE_ROOK) return  500;
@@ -921,21 +949,30 @@ double ChessBoard::pieceValue(Pieces piece)
 
 double ChessBoard::basicMaterialCount()
 {
-	double material = 0;
-	double totalmaterial = 0;
+	material = 0;
+	totalMaterial = 0;
 	for(int column = 0; column < 8; column++)
 		for(int row = 0; row < 8; row++)
 		{	
 			double temp = pieceValue(get(column, row));
 			material += temp;
-			totalmaterial += abs(temp);
+			totalMaterial += abs(temp);
 		}
-	return material * ( 1 + 10 / totalmaterial);
+	return material * ( 1 + 10 / totalMaterial);
 }
 
 
 double ChessBoard::piecePositionBonus(Pieces piece, int column, int row)
 {
+	if(piece == WHITE_PAWN)
+	{
+		return pawn_pcsq[column + 8 * (7-row)];
+	}
+	if(piece == BLACK_PAWN)
+	{
+		return -pawn_pcsq[column + 8 * (row)];
+	}
+
 	if(piece == WHITE_BISHOP || piece == WHITE_KNIGHT)
 	{
 		return 10 - 2*abs(column - 3.5) - 2*abs(row - 3.5);
@@ -943,6 +980,40 @@ double ChessBoard::piecePositionBonus(Pieces piece, int column, int row)
 	if(piece == BLACK_BISHOP || piece == BLACK_KNIGHT)
 	{
 		return -1*(10 - 2*abs(column - 3.5) - 2*abs(row - 3.5));
+	}
+
+	// Crude check for endgame 
+	if(totalMaterial < 3900)
+	{
+		if(piece == WHITE_PAWN)
+		{
+			return 5*row;	
+		}
+		if(piece == BLACK_PAWN)
+		{
+			return 5*(7-row);	
+		}
+
+		if(piece == WHITE_KING)
+		{
+			return -((row - 3.5)*(row - 3.5) + (column - 3.5)*(column - 3.5));
+		}
+		if(piece == BLACK_KING)
+		{
+			return ((row - 3.5)*(row - 3.5) + (column - 3.5)*(column - 3.5));
+		}
+	}
+	else
+	{
+		// Not in endgame
+		if(piece == WHITE_KING)
+		{
+			return king_pcsq[column + 8*(7-row)];
+		}
+		if(piece == BLACK_KING)
+		{
+			return king_pcsq[column + 8*(row)];
+		}
 	}
 	return 0;
 }
@@ -962,6 +1033,99 @@ double ChessBoard::positionBonusses()
 }
 
 
+double ChessBoard::pawnStructureBonus()
+{
+	double bonus = 0;
+
+	// Locate pawns in both colors (the one closest to the initial position)
+	char pawns[2][8];
+	for(int i = 0; i < 8; i++)
+	{
+		pawns[0][i] = 0;
+		pawns[1][i] = 0;
+	}
+
+	for(int column = 0; column < 8; column++)
+	{
+		// Look for white pawns
+		for(int row = 0; row < 8; row++)
+		{
+			if(board[column][row] == WHITE_PAWN)
+			{
+				if(pawns[0][column] != 0)
+				{
+					bonus -= DOUBLED_PAWNS_PENALTY;
+				}
+				pawns[0][column] = row;
+			}
+		}
+
+		// Look for black pawns
+		for(int row = 7; row > 0; row--)
+		{
+			if(board[column][row] == BLACK_PAWN)
+			{
+				if(pawns[1][column] != 0)
+				{
+					bonus += DOUBLED_PAWNS_PENALTY;
+				}
+				pawns[1][column] = row;
+			}
+		}
+	}
+
+	for(int column = 0; column < 8; column++)
+	{
+		for(int row = 0; row < 8; row++)
+		{
+			if(board[column][row] == WHITE_PAWN)
+			{
+				// Detect isolated pawns
+				if(column == 0 || pawns[0][column - 1] == 0)
+				{
+					if(column == 7 || pawns[0][column + 1] == 0)
+					{
+						bonus -= ISOLATED_PAWN;
+					}
+				}
+
+				// Detect passed pawn
+				if(column == 0 || pawns[1][column - 1] <= row)
+				{
+					if(column == 7 || pawns[1][column + 1] <= row)
+					{
+						bonus += PASSED_PAWN_BONUS;
+					}
+				}
+			}
+
+			if(board[column][row] == BLACK_PAWN)
+			{
+				// Detect isolated pawns
+				if(column == 0 || pawns[1][column - 1] == 0)
+				{
+					if(column == 7 || pawns[1][column + 1] == 0)
+					{
+						bonus += ISOLATED_PAWN;
+					}
+				}
+
+				// Detect passed pawn
+				if(column == 0 || pawns[0][column - 1] >= row)
+				{
+					if(column == 7 || pawns[0][column + 1] >= row)
+					{
+						bonus -= PASSED_PAWN_BONUS;
+					}
+				}
+			}
+		}
+	}
+
+
+	return bonus;
+}
+
 Evaluation ChessBoard::staticEvaluation()
 {
 	// Detect mate
@@ -975,7 +1139,8 @@ Evaluation ChessBoard::staticEvaluation()
 	double evaluation = 0;
 	evaluation += basicMaterialCount();
 	evaluation += positionBonusses();
-	evaluation += 0.001 * rand() / RAND_MAX;
+	//evaluation += pawnStructureBonus();
+	evaluation += 1 * rand() / RAND_MAX;
 
 
 	return Evaluation(evaluation);
@@ -991,7 +1156,7 @@ Evaluation ChessBoard::dynamicEvaluationWrapper(int searchDepth, int * nodeCount
 	(*nodeCount)++;
 
 	if(searchDepth <= 1 )
-		return quiscenceSearch(nodeCount, alpha, beta, pv);
+		return quiscenceSearch(nodeCount, alpha, beta, pv, false);
 
 	std::vector<Move> moves = legalMoves();
 	if (moves.empty())
@@ -1086,7 +1251,7 @@ Evaluation ChessBoard::dynamicEvaluationWrapper(int searchDepth, int * nodeCount
 }
 
 
-Evaluation ChessBoard::quiscenceSearch(int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv)
+Evaluation ChessBoard::quiscenceSearch(int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv, bool final)
 {
 	(*nodeCount)++;
 
@@ -1135,10 +1300,10 @@ Evaluation ChessBoard::quiscenceSearch(int * nodeCount, Evaluation alpha, Evalua
 		assert(moves.size() > i);
 		std::vector<Move> tempPv;
 		Evaluation eval;
-		if(tempBoard.get(moves.at(i).to.column, moves.at(i).to.row) != NO_PIECE)
+		if(tempBoard.get(moves.at(i).to.column, moves.at(i).to.row) != NO_PIECE && !final)
 		{
 			tempBoard.performMove(moves.at(i));
-			eval = tempBoard.quiscenceSearch(nodeCount, alpha, beta, tempPv);
+			eval = tempBoard.quiscenceSearch(nodeCount, alpha, beta, tempPv, false);
 		}
 		else
 		{

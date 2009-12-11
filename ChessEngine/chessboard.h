@@ -13,12 +13,17 @@ enum Pieces {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP,
 	BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, 
 	BLACK_BISHOP, BLACK_QUEEN, BLACK_KING};
 
+#define DOUBLED_PAWNS_PENALTY 30
+#define ISOLATED_PAWN 30
+#define PASSED_PAWN_BONUS 60
 
 
 class ChessBoard {
 private:
 	Pieces board[8][8];
 	Side toMove;
+	double totalMaterial;
+	double material;
 
 public:
 	Move bestMove;
@@ -83,12 +88,13 @@ public:
 	double basicMaterialCount();
 	Evaluation dynamicEvaluation(int searchDepth, int * nodeCount, std::vector<Move> &pv);
 	Evaluation dynamicEvaluationWrapper(int searchDepth, int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv);
-	Evaluation quiscenceSearch(int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv);
+	Evaluation quiscenceSearch(int * nodeCount, Evaluation alpha, Evaluation beta, std::vector<Move> &pv, bool final);
 	void whiteCastling( std::vector<Move> &moves );
 	void blackCastling( std::vector<Move> &moves );
 	void orderMoves( std::vector<Move> &moves );
 	double piecePositionBonus(Pieces piece, int column, int row);
 	double positionBonusses();
+	double pawnStructureBonus();
 };
 
 

@@ -925,8 +925,8 @@ TEST ( DetectMateUsingTheEvaluationFunction )
 TEST ( PieceValues )
 {
 	ChessBoard board;
-	CHECK(board.pieceValue(WHITE_KING) == 10000);
-	CHECK(board.pieceValue(BLACK_KING) == -10000);
+	CHECK(board.pieceValue(WHITE_KING) == 0);
+	CHECK(board.pieceValue(BLACK_KING) == 0);
 	CHECK(board.pieceValue(WHITE_QUEEN) == 900);
 	CHECK(board.pieceValue(BLACK_QUEEN) == -900);
 	CHECK(board.pieceValue(WHITE_ROOK) == 500);
