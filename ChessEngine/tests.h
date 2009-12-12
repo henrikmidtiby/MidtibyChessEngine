@@ -1095,6 +1095,7 @@ TEST ( TakeBackLastMove )
 	board.initializeGame();
 	board.performMove(Move(Position(4, 1), Position(4, 3)));
 	board.takeBackLastMove();
+	CHECK(board.sideToMove() == WHITE);
 	for(int i = 0; i < 8; i++)
 	{
 		for(int j = 0; j < 8; j++) 
@@ -1113,12 +1114,19 @@ TEST ( TakeBackLastMove )
 	board.performMove(Move(Position(6, 7), Position(5, 5))); // Nf6
 	board.performMove(Move(Position(4, 0), Position(6, 0))); // O-O
 	board.takeBackLastMove(); // O-O
+	CHECK(board.sideToMove() == WHITE);
 	board.takeBackLastMove(); // Nf6
+	CHECK(board.sideToMove() == BLACK);
 	board.takeBackLastMove(); // Nf3
+	CHECK(board.sideToMove() == WHITE);
 	board.takeBackLastMove(); // Bb5
+	CHECK(board.sideToMove() == BLACK);
 	board.takeBackLastMove(); // Bb4
+	CHECK(board.sideToMove() == WHITE);
 	board.takeBackLastMove(); // e5
+	CHECK(board.sideToMove() == BLACK);
 	board.takeBackLastMove(); // e4
+	CHECK(board.sideToMove() == WHITE);
 
 	for(int i = 0; i < 8; i++)
 	{

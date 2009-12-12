@@ -1201,11 +1201,11 @@ Evaluation ChessBoard::dynamicEvaluationWrapper(int searchDepth, int * nodeCount
 	std::vector<Move> currentBestPV;
 	for(int i = 0; i < (int) moves.size(); i++)
 	{
-		ChessBoard tempBoard(*this);
 		assert((int)moves.size() > i);
-		tempBoard.performMove(moves.at(i));
+		performMove(moves.at(i));
 		std::vector<Move> tempPv;
-		Evaluation eval = tempBoard.dynamicEvaluationWrapper(searchDepth - 1, nodeCount, alpha, beta, tempPv);
+		Evaluation eval = dynamicEvaluationWrapper(searchDepth - 1, nodeCount, alpha, beta, tempPv);
+		takeBackLastMove();
 		if(toMove == WHITE)
 		{
 			if(eval > currentBest)
@@ -1299,19 +1299,20 @@ Evaluation ChessBoard::quiscenceSearch(int * nodeCount, Evaluation alpha, Evalua
 	std::vector<Move> currentBestPV;
 	for(int i = 0; i < (int) moves.size(); i++)
 	{
-		ChessBoard tempBoard(*this);
 		assert((int) moves.size() > i);
 		std::vector<Move> tempPv;
 		Evaluation eval;
-		if(tempBoard.get(moves.at(i).to.column, moves.at(i).to.row) != NO_PIECE && !final)
+		if(get(moves.at(i).to.column, moves.at(i).to.row) != NO_PIECE && !final)
 		{
-			tempBoard.performMove(moves.at(i));
-			eval = tempBoard.quiscenceSearch(nodeCount, alpha, beta, tempPv, false);
+			performMove(moves.at(i));
+			eval = quiscenceSearch(nodeCount, alpha, beta, tempPv, false);
+			takeBackLastMove();
 		}
 		else
 		{
-			tempBoard.performMove(moves.at(i));
-			eval = tempBoard.staticEvaluation();
+			performMove(moves.at(i));
+			eval = staticEvaluation();
+			takeBackLastMove();
 		}
 		if(toMove == WHITE)
 		{

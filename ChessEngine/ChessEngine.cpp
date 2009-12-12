@@ -146,12 +146,14 @@ int uciInterface()
 			if(board.sideToMove() == WHITE)
 			{
 				timeToUse = whiteTime / 40;
+				fprintf(fileHandle, "White to move\n");
 			}
 			else
 			{
 				timeToUse = blackTime / 40;
+				fprintf(fileHandle, "Black to move\n");
 			}
-
+			
 
 			clock_t initialTime = clock();
 			int maxDepth = 5;
@@ -168,10 +170,10 @@ int uciInterface()
 				}
 				int usedTime = (int) (1000. * (clock() - initialTime)) / CLOCKS_PER_SEC;
 				int nodesPrSec = (int) (1000.0 * nodeCount) / (usedTime + 1);
-				sprintf_s(temp, 1000, "info depth %d nps %d\n", depth, nodesPrSec);
-				echoToGuiAndFile(&fileHandle, temp);
-				sprintf_s(temp, 100, "uciok\n");
-				echoToGuiAndFile(&fileHandle, temp);
+				//sprintf_s(temp, 1000, "info depth %d nps %d\n", depth, nodesPrSec);
+				//echoToGuiAndFile(&fileHandle, temp);
+				//sprintf_s(temp, 100, "uciok\n");
+				//echoToGuiAndFile(&fileHandle, temp);
 
 				if(board.sideToMove() == WHITE)
 					sprintf_s(temp, 1000, "info depth %d score cp %d time %d nodes %d nps %d pv %s\r\n", depth, (int) (eval.getBoardEvaluation()), usedTime, nodeCount, nodesPrSec, pvString.c_str());
@@ -189,7 +191,7 @@ int uciInterface()
 			sprintf_s(temp, 100, "bestmove %s\n", board.bestMove.toString().c_str());
 			fflush(stdout);
 			echoToGuiAndFile(&fileHandle, temp);
-			board.performBestMove();
+			board.performMove(pv.front());
 			moves.push_back(board.bestMove);
 
 			continue;
