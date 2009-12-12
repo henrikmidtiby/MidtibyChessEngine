@@ -128,6 +128,9 @@ Side ChessBoard::sideToMove()
 
 void ChessBoard::performMove(Move mov)
 {
+	history.push_back(mov);
+	captures.push_back(board[mov.to.column][mov.to.row]);
+
 	performMoveWrapper(mov);
 
 	// Remove castling rights
@@ -1196,10 +1199,10 @@ Evaluation ChessBoard::dynamicEvaluationWrapper(int searchDepth, int * nodeCount
 
 	int currentBestMove = 0;
 	std::vector<Move> currentBestPV;
-	for(int i = 0; i < moves.size(); i++)
+	for(int i = 0; i < (int) moves.size(); i++)
 	{
 		ChessBoard tempBoard(*this);
-		assert(moves.size() > i);
+		assert((int)moves.size() > i);
 		tempBoard.performMove(moves.at(i));
 		std::vector<Move> tempPv;
 		Evaluation eval = tempBoard.dynamicEvaluationWrapper(searchDepth - 1, nodeCount, alpha, beta, tempPv);
@@ -1294,10 +1297,10 @@ Evaluation ChessBoard::quiscenceSearch(int * nodeCount, Evaluation alpha, Evalua
 
 	int currentBestMove = 0;
 	std::vector<Move> currentBestPV;
-	for(int i = 0; i < moves.size(); i++)
+	for(int i = 0; i < (int) moves.size(); i++)
 	{
 		ChessBoard tempBoard(*this);
-		assert(moves.size() > i);
+		assert((int) moves.size() > i);
 		std::vector<Move> tempPv;
 		Evaluation eval;
 		if(tempBoard.get(moves.at(i).to.column, moves.at(i).to.row) != NO_PIECE && !final)
@@ -1535,7 +1538,7 @@ void ChessBoard::orderMoves( std::vector<Move> &moves )
 	std::vector<Move> captures;
 	std::vector<Move> nonCaptures;
 
-	for(int i = 0; i < moves.size(); i++)
+	for(int i = 0; i < (int) moves.size(); i++)
 	{
 		Move mov = moves.at(i);
 		if(board[mov.to.column][mov.to.row] != NO_PIECE)
@@ -1547,4 +1550,76 @@ void ChessBoard::orderMoves( std::vector<Move> &moves )
 	moves.clear();
 	moves.insert(moves.end(), captures.begin(), captures.end());
 	moves.insert(moves.end(), nonCaptures.begin(), nonCaptures.end());
+}
+
+void ChessBoard::takeBackLastMove()
+{
+	Move undoMove = history.back();
+	history.pop_back();
+
+	bool castelingDetected = false;
+
+	// Detect casteling
+	if(undoMove.from.column == 4)
+	{
+		if(undoMove.to.column == 6)
+		{
+			if(undoMove.from.row == 0 && board[6][0] == WHITE_KING)
+			{
+				castelingDetected = true;
+
+				// White O-O
+				board[4][0] = WHITE_KING;
+				board[5][0] = NO_PIECE;
+				board[6][0] = NO_PIECE;
+				board[7][0] = WHITE_ROOK;
+			}
+			if(undoMove.from.row == 7 && board[6][7] == BLACK_KING)
+			{
+				castelingDetected = true;
+
+				// Black O-O
+				board[4][7] = BLACK_KING;
+				board[5][7] = NO_PIECE;
+				board[6][7] = NO_PIECE;
+				board[7][7] = BLACK_ROOK;
+			}
+		}
+		if(undoMove.to.column == 2)
+		{
+			if(undoMove.from.row == 0 && board[2][0] == WHITE_KING)
+			{
+				castelingDetected = true;
+
+				// White O-O-O
+				board[4][0] = WHITE_KING;
+				board[3][0] = NO_PIECE;
+				board[2][0] = NO_PIECE;
+				board[1][0] = NO_PIECE;
+				board[0][0] = WHITE_ROOK;
+			}
+			if(undoMove.from.row == 7 && board[2][7] == BLACK_KING)
+			{
+				castelingDetected = true;
+
+				// White O-O-O
+				board[4][7] = BLACK_KING;
+				board[3][7] = NO_PIECE;
+				board[2][7] = NO_PIECE;
+				board[1][7] = NO_PIECE;
+				board[0][7] = BLACK_ROOK;
+			}
+		}
+	}
+
+	if(castelingDetected == false)
+	{
+		board[undoMove.from.column][undoMove.from.row] = board[undoMove.to.column][undoMove.to.row];
+		board[undoMove.to.column][undoMove.to.row] = captures.back();
+	}
+	captures.pop_back();
+	if(toMove == WHITE)
+		toMove = BLACK;
+	else
+		toMove = WHITE;
 }

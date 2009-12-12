@@ -117,7 +117,7 @@ int uciInterface()
 						tempBuffer[i] = buffer[index + i];
 					}
 					tempBuffer[length] = '\0';
-					strncpy(&buffer[index], tempBuffer, length);
+					strncpy_s(&buffer[index], 10000-index, tempBuffer, length);
 //					fprintf_s(fileHandle, "info \"string: \'%c%c%c%c\'\"\n", tempBuffer[0], tempBuffer[1], tempBuffer[2], tempBuffer[3]);
 					if(recognizeAsMove(tempBuffer, &mov))
 					{
@@ -162,12 +162,12 @@ int uciInterface()
 			{
 				Evaluation eval = board.dynamicEvaluation(depth, &nodeCount, pv);
 				std::string pvString = "";
-				for(int i = 0; i < pv.size(); i++)
+				for(int i = 0; i < (int) pv.size(); i++)
 				{
 					pvString = pvString + pv.at(i).toString() + " ";
 				}
-				int usedTime = (1000. * (clock() - initialTime)) / CLOCKS_PER_SEC;
-				int nodesPrSec = (1000.0 * nodeCount) / (usedTime + 1);
+				int usedTime = (int) (1000. * (clock() - initialTime)) / CLOCKS_PER_SEC;
+				int nodesPrSec = (int) (1000.0 * nodeCount) / (usedTime + 1);
 				sprintf_s(temp, 1000, "info depth %d nps %d\n", depth, nodesPrSec);
 				echoToGuiAndFile(&fileHandle, temp);
 				sprintf_s(temp, 100, "uciok\n");

@@ -24,6 +24,8 @@ private:
 	Side toMove;
 	double totalMaterial;
 	double material;
+	std::vector<Move> history;
+	std::vector<Pieces> captures;
 
 public:
 	Move bestMove;
@@ -49,7 +51,7 @@ public:
 	void printMovesFromList(std::vector<Move> moves);
 	void performBestMove();
 	void setupBoardFromFen(char * inputString);
-
+	void takeBackLastMove();
 
 
 	bool isBlackMate();

@@ -1086,3 +1086,45 @@ TEST ( WhiteCasteling )
 	CHECK(board.get(7, 0) == NO_PIECE);
 
 }
+
+TEST ( TakeBackLastMove )
+{
+	ChessBoard boardRef;
+	boardRef.initializeGame();
+	ChessBoard board;
+	board.initializeGame();
+	board.performMove(Move(Position(4, 1), Position(4, 3)));
+	board.takeBackLastMove();
+	for(int i = 0; i < 8; i++)
+	{
+		for(int j = 0; j < 8; j++) 
+		{
+			CHECK(boardRef.get(i, j) == board.get(i, j));
+		}
+	}
+
+	boardRef.initializeGame();
+	board.initializeGame();
+	board.performMove(Move(Position(4, 1), Position(4, 3))); // e4
+	board.performMove(Move(Position(4, 6), Position(4, 4))); // e5
+	board.performMove(Move(Position(5, 0), Position(1, 3))); // Bb4
+	board.performMove(Move(Position(5, 7), Position(1, 4))); // Bb5
+	board.performMove(Move(Position(6, 0), Position(5, 2))); // Nf3
+	board.performMove(Move(Position(6, 7), Position(5, 5))); // Nf6
+	board.performMove(Move(Position(4, 0), Position(6, 0))); // O-O
+	board.takeBackLastMove(); // O-O
+	board.takeBackLastMove(); // Nf6
+	board.takeBackLastMove(); // Nf3
+	board.takeBackLastMove(); // Bb5
+	board.takeBackLastMove(); // Bb4
+	board.takeBackLastMove(); // e5
+	board.takeBackLastMove(); // e4
+
+	for(int i = 0; i < 8; i++)
+	{
+		for(int j = 0; j < 8; j++) 
+		{
+			CHECK(boardRef.get(i, j) == board.get(i, j));
+		}
+	}
+}
