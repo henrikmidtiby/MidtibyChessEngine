@@ -74,6 +74,7 @@ int uciInterface()
 {
 	FILE* fileHandle;
 	fileHandle = fopen("inputFromGui.txt", "w");
+	echoToGuiAndFile(&fileHandle, (char*) "MidtibyChessEngine\n");
 
 	ChessBoard board;
 	board.initializeGame();
@@ -187,9 +188,21 @@ int uciInterface()
 				echoToGuiAndFile(&fileHandle, temp);
 				fflush(stdout);
 
-				if(2*usedTime > timeToUse)
+				if(timeToUse > 0)
 				{
-					break;
+						// Time limit is set
+						if(2*usedTime > timeToUse)
+						{
+							break;
+						}
+				}
+				else
+				{
+						// Use depth limit
+						if(depth > 4)
+						{
+							break;
+						}
 				}
 			}
 
