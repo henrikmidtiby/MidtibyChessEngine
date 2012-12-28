@@ -10,6 +10,8 @@
 #include <iostream>
 #include <ctime>
 #include <stdlib.h>
+#include <cpptest.h>
+#include "ChessBoardTest.h"
 
 bool recognizeAsMove( char* buffer, Move* mov ) 
 {
@@ -207,6 +209,7 @@ int uciInterface()
 	return 0;
 }
 
+
 int main(int argc, char* argv[])
 {
 	srand(time(0));
@@ -217,7 +220,9 @@ int main(int argc, char* argv[])
 		if(strcmp(argv[1], "unittest") == 0)
 		{
 			//return UnitTest::RunAllTests();
-			return 0;
+		    ChessBoardTest cbt;
+		    Test::TextOutput output(Test::TextOutput::Verbose);
+		    return cbt.run(output, false); // Note the 'false' parameter
 		}
 
 		if(strcmp(argv[1], "xboard") == 0)
