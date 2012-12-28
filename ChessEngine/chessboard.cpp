@@ -1,5 +1,6 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "chessboard.h"
+#include <stdio.h>
 #include <assert.h>
 #include <algorithm>
 #include <string>

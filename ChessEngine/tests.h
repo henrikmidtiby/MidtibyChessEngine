@@ -1136,3 +1136,23 @@ TEST ( TakeBackLastMove )
 		}
 	}
 }
+
+TEST ( RecognizeMoves )
+{
+	Move mov(Position(0, 0), Position(0, 0));
+	// Normal moves
+	CHECK(recognizeAsMove("e2e4", &mov));
+	CHECK(mov == Move(Position(4, 1), Position(4, 3)));
+	CHECK(!recognizeAsMove("e2", &mov));
+
+	// Promotion
+	CHECK(recognizeAsMove("e7e8q", &mov));
+	CHECK(mov == Move(Position(4, 6), Position(4, 7), PROMOTE_TO_QUEEN));
+	CHECK(recognizeAsMove("e7e8r", &mov));
+	CHECK(mov == Move(Position(4, 6), Position(4, 7), PROMOTE_TO_ROOK));
+	CHECK(recognizeAsMove("e7e8n", &mov));
+	CHECK(mov == Move(Position(4, 6), Position(4, 7), PROMOTE_TO_KNIGHT));
+	CHECK(recognizeAsMove("e7e8b", &mov));
+	CHECK(mov == Move(Position(4, 6), Position(4, 7), PROMOTE_TO_BISHOP));
+
+}

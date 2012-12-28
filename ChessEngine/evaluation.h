@@ -2,6 +2,7 @@
 #define EVALUATION_H
 #include <math.h>
 #include <assert.h>
+#include <stdio.h>
 
 enum Side {WHITE, BLACK};
 enum EvaluationState {BLACK_WINS, NO_MATE, WHITE_WINS};
@@ -86,15 +87,15 @@ public:
 		char buffer[50];
 		if(mateState == NO_MATE)
 		{
-			sprintf_s(buffer, 50, "%d", boardEvaluation*100);
+			snprintf(buffer, 50, "%d", (int) (boardEvaluation*100));
 		}
 		else if(mateState == WHITE_WINS)
 		{
-			sprintf_s(buffer, 50, "Black is mate in %d half moves", mateIn);
+			snprintf(buffer, 50, "Black is mate in %d half moves", mateIn);
 		}
 		else
 		{
-			sprintf_s(buffer, 50, "White is mate in %d half moves", mateIn);
+			snprintf(buffer, 50, "White is mate in %d half moves", mateIn);
 		}
 		return std::string(buffer);
 	}
